@@ -3937,6 +3937,40 @@ async function loadSample(){
     if(!button) return;
     await removeCustomFont(button.dataset.customFontDelete);
   });
+
+const copyrightInfoBtn = $('copyrightInfoBtn');
+const copyrightDialog = $('copyrightDialog');
+const copyrightDialogCloseBtn = $('copyrightDialogCloseBtn');
+const copyrightDialogConfirmBtn = $('copyrightDialogConfirmBtn');
+
+function openCopyrightDialog(){
+  if(!copyrightDialog) return;
+  if(typeof copyrightDialog.showModal === 'function'){
+    copyrightDialog.showModal();
+  }else{
+    copyrightDialog.setAttribute('open', '');
+  }
+}
+
+function closeCopyrightDialog(){
+  if(!copyrightDialog) return;
+  if(typeof copyrightDialog.close === 'function'){
+    copyrightDialog.close();
+  }else{
+    copyrightDialog.removeAttribute('open');
+  }
+  if(copyrightInfoBtn) copyrightInfoBtn.focus();
+}
+
+if(copyrightInfoBtn) copyrightInfoBtn.addEventListener('click', openCopyrightDialog);
+if(copyrightDialogCloseBtn) copyrightDialogCloseBtn.addEventListener('click', closeCopyrightDialog);
+if(copyrightDialogConfirmBtn) copyrightDialogConfirmBtn.addEventListener('click', closeCopyrightDialog);
+if(copyrightDialog){
+  copyrightDialog.addEventListener('click', event => {
+    if(event.target === copyrightDialog) closeCopyrightDialog();
+  });
+}
+
   $('loadSampleBtn').addEventListener('click', loadSample);
   $('resetDefaultsBtn').addEventListener('click', resetSettingsToDefaults);
   $('restoreExifBtn').addEventListener('click', restoreOriginalExif);

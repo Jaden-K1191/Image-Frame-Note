@@ -1,0 +1,70 @@
+FrameNote 소프트웨어 이용허락
+FrameNote Software License
+
+Copyright © 2026 Jaden_fujipuerson. All rights reserved.
+
+==============================
+한국어
+==============================
+
+1. 적용 범위
+본 이용허락은 FrameNote를 위해 제작된 애플리케이션 코드, 독창적인 인터페이스 구성, 자체 템플릿 및 문서에 적용됩니다. THIRD_PARTY_NOTICES.txt에 명시된 제3자 자료는 제외됩니다.
+
+2. 허용되는 사용
+FrameNote는 개인, 업무, 교육, 포트폴리오, 전시, SNS 게시, 인쇄 및 상업적 사진 작업에 무료로 사용할 수 있습니다. FrameNote로 제작한 결과 이미지는 개인적·상업적으로 이용할 수 있습니다. 단, 사용자가 제공한 원본 사진, 문구, 로고, 폰트 및 기타 자료에 적용되는 권리는 별도로 준수해야 합니다.
+
+3. 제한 사항
+Jaden_fujipuerson의 사전 서면 허가 없이 다음 행위를 할 수 없습니다.
+- FrameNote 애플리케이션 자체를 판매, 재허락, 임대하거나 상업적으로 재배포하는 행위
+- 애플리케이션을 미러링, 재패키징하거나 다른 이름으로 공개·재배포하는 행위
+- 수정본 또는 파생 애플리케이션을 공개 배포하는 행위
+- FrameNote 템플릿 또는 포함된 제3자 자료를 별도로 추출하여 판매하거나 재배포하는 행위
+- 저작권, 라이선스 또는 제3자 고지를 제거하거나 숨기는 행위
+
+4. 사용자 제공 자료
+사용자는 FrameNote에 불러온 사진, 문구, 폰트, 로고, 상표 및 기타 자료에 대한 권리를 확인할 책임이 있습니다. FrameNote는 제3자 콘텐츠에 대한 권리를 부여하지 않습니다.
+
+5. 제3자 자료
+브랜드명, 로고, 폰트, 라이브러리 및 기타 제3자 자료의 권리는 각 권리자에게 있으며, 각 자료의 고유한 라이선스 또는 이용조건이 적용됩니다. 자세한 사항은 THIRD_PARTY_NOTICES.txt를 확인하십시오.
+
+6. 비제휴 고지
+FrameNote는 독립 프로젝트이며, 앱에 표시된 카메라 제조사 또는 기타 브랜드와 제휴하거나 후원 또는 공식 승인을 받은 제품이 아닙니다.
+
+7. 보증 제한
+FrameNote는 현 상태로 제공되며 어떠한 보증도 제공하지 않습니다. 저작권자는 파일 손상, 내보내기 실패, 데이터 손실, 브라우저 비호환 또는 소프트웨어 사용으로 발생한 기타 손해에 대해 책임지지 않습니다. 중요한 원본 파일은 별도로 백업하십시오.
+
+8. 허가 요청
+재배포, 수정, 번들 제공 또는 상업적 라이선스에 관한 요청은 Jaden_fujipuerson의 사전 서면 허가가 필요합니다.
+
+==============================
+English
+==============================
+
+1. Scope
+This license applies to the FrameNote application code, original interface composition, original templates, and documentation created for FrameNote, excluding third-party materials identified in THIRD_PARTY_NOTICES.txt.
+
+2. Permitted Use
+You may use FrameNote free of charge for personal, professional, educational, portfolio, exhibition, social-media, printing, and commercial photography workflows. Images created with FrameNote may be used for personal or commercial purposes, subject to the rights attached to the original photo, text, logo, font, and other materials supplied by the user.
+
+3. Restrictions
+Without prior written permission from Jaden_fujipuerson, you may not:
+- sell, sublicense, rent, or commercially redistribute the FrameNote application itself;
+- redistribute, mirror, repackage, or publish the application under another name;
+- publicly distribute a modified version or derivative application;
+- extract and separately sell or redistribute FrameNote templates or bundled third-party assets;
+- remove or conceal copyright, license, or third-party notices.
+
+4. User-Supplied Materials
+The user is responsible for confirming the rights to photos, text, fonts, logos, trademarks, and any other materials imported into FrameNote. FrameNote does not grant rights to third-party content.
+
+5. Third-Party Materials
+Brand names, logos, fonts, libraries, and other third-party materials remain the property of their respective owners and are governed by their own licenses or terms. See THIRD_PARTY_NOTICES.txt.
+
+6. No Affiliation
+FrameNote is an independent project and is not affiliated with, sponsored by, or officially approved by any camera manufacturer or other brand referenced in the application.
+
+7. Disclaimer
+FrameNote is provided “as is,” without warranty of any kind. The copyright holder is not liable for file corruption, failed exports, data loss, browser incompatibility, or other damages arising from use of the software. Keep separate backups of important original files.
+
+8. Permission Requests
+Requests for redistribution, modification, bundling, or commercial licensing require prior written permission from Jaden_fujipuerson.

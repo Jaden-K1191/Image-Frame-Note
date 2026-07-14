@@ -15,6 +15,7 @@
   <header class="topbar">
     <div class="brand">
       <span class="brand-script">FrameNote</span>
+      <button class="copyright-info-button" id="copyrightInfoBtn" type="button" aria-label="저작권 및 이용 정보 / Copyright and terms of use" title="저작권 및 이용 정보 / Copyright and terms of use">i</button>
     </div>
     <div class="top-actions">
       <label class="button ghost" for="fileInput">사진 추가</label>
@@ -409,9 +410,89 @@
     </aside>
   </main>
 
+
+  <dialog class="copyright-dialog" id="copyrightDialog" aria-labelledby="copyrightDialogTitle">
+    <div class="copyright-dialog-shell">
+      <div class="copyright-dialog-header">
+        <div>
+          <div class="copyright-dialog-eyebrow">FRAME NOTE INFORMATION</div>
+          <h2 id="copyrightDialogTitle">저작권 및 이용 안내</h2>
+          <div class="copyright-dialog-subtitle">Copyright &amp; Terms of Use</div>
+        </div>
+        <button class="copyright-dialog-close" id="copyrightDialogCloseBtn" type="button" aria-label="닫기 / Close">×</button>
+      </div>
+
+      <div class="copyright-dialog-body">
+        <section class="copyright-card copyright-card-primary">
+          <h3>FrameNote</h3>
+          <p><strong>Copyright © 2026 Jaden_fujipuerson. All rights reserved.</strong></p>
+          <p>FrameNote의 프로그램 코드, 인터페이스 구성, 자체 템플릿 및 문서에 대한 권리는 저작권자에게 있습니다.</p>
+          <p class="copyright-en">The copyright holder owns the FrameNote application code, original interface composition, original templates, and documentation.</p>
+        </section>
+
+        <section class="copyright-card">
+          <h3>결과 이미지의 이용 <span>Use of Exported Images</span></h3>
+          <p>사용자가 FrameNote로 제작한 결과 이미지는 개인 작업, SNS 게시, 인쇄, 전시, 포트폴리오 및 상업적 사진 작업에 사용할 수 있습니다.</p>
+          <p>사용자가 불러온 원본 사진과 문구의 권리는 해당 사용자 또는 원 권리자에게 있습니다.</p>
+          <p class="copyright-en">Images exported from FrameNote may be used for personal projects, social media, printing, exhibitions, portfolios, and commercial photography. Rights in the original photos and text remain with the user or their respective rights holders.</p>
+        </section>
+
+        <section class="copyright-card copyright-grid-card">
+          <div>
+            <h3>허용 <span>Permitted</span></h3>
+            <ul>
+              <li>개인 및 업무 목적의 앱 사용</li>
+              <li>결과 이미지의 개인적·상업적 이용</li>
+              <li>저작권자가 제공한 원본 배포본의 무료 사용</li>
+            </ul>
+            <ul class="copyright-en-list">
+              <li>Personal and professional use of the app</li>
+              <li>Personal and commercial use of exported images</li>
+              <li>Free use of the original distribution supplied by the copyright holder</li>
+            </ul>
+          </div>
+          <div>
+            <h3>금지 <span>Prohibited</span></h3>
+            <ul>
+              <li>FrameNote 프로그램 자체의 판매</li>
+              <li>무단 재배포·재패키징·수정본 공개 배포</li>
+              <li>포함된 템플릿·로고·폰트 파일의 별도 추출 및 판매</li>
+            </ul>
+            <ul class="copyright-en-list">
+              <li>Selling the FrameNote application itself</li>
+              <li>Unauthorized redistribution, repackaging, or public distribution of modified versions</li>
+              <li>Extracting and separately selling bundled templates, logos, or font files</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="copyright-card">
+          <h3>사용자 자료 및 제3자 권리 <span>User Content &amp; Third-Party Rights</span></h3>
+          <p>사용자가 불러온 사진, 로고, 폰트, 문구 및 기타 자료의 권리 확인은 사용자 본인의 책임입니다.</p>
+          <p>카메라 브랜드명과 로고의 상표권은 각 권리자에게 있으며, FrameNote는 해당 브랜드와 제휴하거나 공식 승인을 받은 제품이 아닙니다. 포함된 폰트와 외부 라이브러리에는 각 권리자의 개별 라이선스가 우선 적용됩니다.</p>
+          <p class="copyright-en">Users are responsible for confirming the rights to photos, logos, fonts, text, and other imported materials. Camera brand names and logos belong to their respective owners. FrameNote is not affiliated with or officially approved by those brands. Separate licenses govern bundled fonts and external libraries.</p>
+        </section>
+
+        <section class="copyright-card">
+          <h3>보증 제한 <span>Disclaimer</span></h3>
+          <p>FrameNote는 현 상태로 제공됩니다. 브라우저 환경, 파일 손상, 저장 실패, 데이터 손실 또는 사용 결과에 대한 별도의 보증을 제공하지 않습니다. 중요한 원본 사진은 별도로 백업한 후 사용하세요.</p>
+          <p class="copyright-en">FrameNote is provided “as is,” without warranty. The copyright holder is not liable for browser incompatibility, file corruption, failed exports, data loss, or other results arising from use. Keep separate backups of important original files.</p>
+        </section>
+      </div>
+
+      <div class="copyright-dialog-footer">
+        <div class="copyright-document-links">
+          <a href="LICENSE.txt" target="_blank" rel="noopener">전체 라이선스 / Full License</a>
+          <a href="THIRD_PARTY_NOTICES.txt" target="_blank" rel="noopener">제3자 고지 / Third-Party Notices</a>
+        </div>
+        <button class="button primary" id="copyrightDialogConfirmBtn" type="button">확인 / OK</button>
+      </div>
+    </div>
+  </dialog>
+
   <footer class="footer">
-    <span>사진과 메모는 브라우저 안에서만 처리됩니다.</span>
-    <span>저장은 localStorage 사용 · 현재/일괄 내보내기는 JPEG 및 ZIP</span>
+    <span>사진과 메모는 브라우저 안에서만 처리됩니다. / Photos and notes are processed only in your browser.</span>
+    <span>Copyright © 2026 Jaden_fujipuerson · All rights reserved.</span>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
