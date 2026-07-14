@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FrameNote</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonts-archive/MaruBuri/MaruBuri.css">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-script">FrameNote</span>
+    </div>
+    <div class="top-actions">
+      <label class="button ghost" for="fileInput">사진 추가</label>
+      <button class="button ghost" id="loadSampleBtn">예시 사진</button>
+      <button class="button ghost" id="resetDefaultsBtn">설정 기본값</button>
+      <button class="button primary" id="exportOriginalBtn">현재 JPEG 원본</button>
+      <button class="button primary" id="exportWebBtn">현재 JPEG 웹용</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="panel left-panel">
+      <section class="upload-zone" id="dropZone">
+        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden />
+        <div class="upload-title">사진을 끌어 놓으세요</div>
+        <div class="upload-sub">여러 장 업로드 지원 · 원본 비율 유지 · JPEG EXIF 자동 읽기</div>
+      </section>
+
+      <div class="section-title batch-header">
+        <span>사진 목록</span>
+        <span id="batchCount">0장</span>
+      </div>
+
+      <div class="batch-mode-panel" id="batchModePanel">
+        <label class="batch-mode-switch">
+          <input id="batchApplyToggle" type="checkbox" checked />
+          <span class="batch-mode-slider" aria-hidden="true"></span>
+          <span class="batch-mode-title" id="batchModeTitle">일괄 적용 모드</span>
+        </label>
+        <div class="batch-mode-description" id="batchModeDescription">템플릿·스타일·요소 배치를 모든 사진에 동일하게 적용합니다.</div>
+      </div>
+      <div id="batchList" class="batch-list" aria-live="polite"></div>
+      <div class="batch-note">제목·본문·EXIF는 항상 사진별로 저장됩니다. 일괄 적용을 끄면 템플릿과 스타일도 사진별로 따로 저장됩니다.</div>
+
+      <div class="batch-export-panel">
+        <button class="button ghost batch-export-button" id="exportAllOriginalBtnPanel" type="button">원본 전체 다운로드</button>
+        <button class="button ghost batch-export-button" id="exportAllWebBtnPanel" type="button">웹용 전체 다운로드</button>
+      </div>
+
+      <div class="save-dir-panel">
+        <button class="button ghost" id="chooseSaveDirBtn" type="button">저장 폴더 선택</button>
+        <button class="button ghost" id="clearSaveDirBtn" type="button">폴더 선택 해제</button>
+        <div class="save-dir-status" id="saveDirStatus">저장 폴더 미선택 · 미지원 브라우저에서는 일반 다운로드/ZIP 사용</div>
+      </div>
+
+      <section class="image-card">
+        <img id="thumb" alt="사진 미리보기" />
+        <div class="file-row">
+          <span id="fileName">sample.jpg</span>
+          <span id="imageSize"></span>
+        </div>
+      </section>
+
+      <div class="section-title">EXIF 요약</div>
+      <div class="exif-summary-card" id="exifSummary">
+        <div class="exif-summary-main" id="exifSummaryCamera">카메라 정보 없음</div>
+        <div class="exif-summary-sub" id="exifSummaryLens">렌즈 정보 없음</div>
+        <div class="exif-summary-sub" id="exifSummaryExposure">노출 정보 없음</div>
+        <div class="exif-summary-date" id="exifSummaryDate"></div>
+        <div class="exif-summary-guide">오른쪽 <strong>EXIF</strong> 탭에서 직접 수정할 수 있습니다.</div>
+      </div>
+    </aside>
+
+    <section class="center-stage">
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="previewCanvas"></canvas>
+      </div>
+      <div class="status-row">
+        <span id="statusText">준비됨</span>
+        <span id="canvasInfo"></span>
+      </div>
+      <div class="download-result" id="downloadResult" hidden>
+        <span id="downloadMessage">자동 저장이 시작되지 않으면 오른쪽 버튼을 누르세요.</span>
+        <a id="preparedDownloadLink" class="button primary" href="#" download>JPEG 다운로드</a>
+      </div>
+    </section>
+
+    <aside class="panel right-panel">
+      <div class="tabs">
+        <button class="tab active" data-tab="layout">레이아웃</button>
+        <button class="tab" data-tab="text">텍스트</button>
+        <button class="tab" data-tab="exif">EXIF</button>
+        <button class="tab" data-tab="style">스타일</button>
+      </div>
+
+      <section class="tab-page active" id="tab-layout">
+        <div class="section-title">템플릿 선택</div>
+        <div class="template-grid">
+          <button class="template active" data-layout="journal"><span>Journal B</span></button>
+          <button class="template" data-layout="contact"><span>Contact Sheet C</span></button>
+          <button class="template" data-layout="gallery"><span>Gallery Frame</span></button>
+          <button class="template" data-layout="stamp"><span>Film Date Overlay</span></button>
+          <button class="template" data-layout="poster"><span>Poster Overlay</span></button>
+          <button class="template" data-layout="frameonly"><span>Clean Frame</span></button>
+          <button class="template" data-layout="minimal"><span>Minimal Bottom Bar</span></button>
+          <button class="template" data-layout="caption"><span>Exhibition Caption</span></button>
+          <button class="template" data-layout="polaroid"><span>Polaroid Note</span></button>
+        </div>
+
+        <div class="section-title">표시 요소</div>
+        <div class="check-grid" id="displayOptions">
+          <label data-setting="showTitle"><input type="checkbox" id="showTitle" checked /> 제목</label>
+          <label data-setting="showLocation"><input type="checkbox" id="showLocation" checked /> 위치</label>
+          <label data-setting="showThought"><input type="checkbox" id="showThought" checked /> Thought</label>
+          <label data-setting="showNote"><input type="checkbox" id="showNote" checked /> Note</label>
+          <label data-setting="showProject"><input type="checkbox" id="showProject" checked /> 프로젝트</label>
+          <label data-setting="showRating"><input type="checkbox" id="showRating" checked /> 별점</label>
+          <label data-setting="showPrompt"><input type="checkbox" id="showPrompt" /> 질문 문구</label>
+          <label data-setting="showLogo"><input type="checkbox" id="showLogo" checked /> <span id="brandToggleText">브랜드 로고</span></label>
+          <label data-setting="showExif"><input type="checkbox" id="showExif" checked /> EXIF 정보</label>
+        </div>
+      </section>
+
+      <section class="tab-page" id="tab-text">
+        <div class="form-grid">
+          <label data-text="title">제목<input id="title" value="Reflection #12" /></label>
+          <label data-text="location">위치<input id="location" value="Hanoi, Vietnam" /></label>
+          <label data-text="project">프로젝트<input id="project" value="Micro City" /></label>
+          <label data-text="rating">별점
+            <select id="rating">
+              <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+              <option value="3">3</option><option value="4" selected>4</option><option value="5">5</option>
+            </select>
+          </label>
+          <label class="full" data-text="thought">Thought<textarea id="thought" rows="4">거울에 비친 풍경이 실제 풍경보다 더 흥미롭게 보여 촬영했다. 반사를 하나의 프레임처럼 활용.</textarea></label>
+          <label class="full" data-text="note">Note<textarea id="note" rows="4">비 오는 날 다시 와서 우산이 들어간 장면을 찍기.</textarea></label>
+          <label class="full" data-text="promptText">선택 질문<input id="promptText" value="오늘은 왜 이 사진을 찍었나요?" /></label>
+        </div>
+      </section>
+
+      <section class="tab-page" id="tab-exif">
+        <div class="exif-panel-header">
+          <div>
+            <div class="style-panel-title">EXIF 직접 수정</div>
+            <div class="style-panel-sub">사진에서 읽은 값을 수정하거나, 표시용 정보를 직접 입력합니다.</div>
+          </div>
+        </div>
+
+        <div class="exif-edit-grid">
+          <label>제조사
+            <input id="make" placeholder="예: FUJIFILM" />
+          </label>
+          <label>카메라
+            <input id="model" placeholder="예: X-T5" />
+          </label>
+          <label class="full">렌즈
+            <input id="lens" placeholder="예: XF33mmF1.4 R LM WR" />
+          </label>
+          <label>초점거리
+            <input id="focal" placeholder="예: 33mm" />
+          </label>
+          <label>조리개
+            <input id="aperture" placeholder="예: F2.8" />
+          </label>
+          <label>셔터 속도
+            <input id="shutter" placeholder="예: 1/250" />
+          </label>
+          <label>ISO
+            <input id="iso" placeholder="예: ISO800" />
+          </label>
+          <label>촬영일
+            <input id="date" type="date" />
+          </label>
+          <label>촬영시간
+            <input id="time" type="time" />
+          </label>
+        </div>
+
+        <div class="exif-actions">
+          <button class="button ghost" id="restoreExifBtn" type="button">사진 EXIF로 복원</button>
+          <button class="button ghost danger-soft" id="clearExifBtn" type="button">EXIF 비우기</button>
+        </div>
+
+        <div class="info-stack exif-info-stack">
+          <div class="hint-box">입력한 값은 모든 템플릿의 EXIF 표시와 브랜드 자동 판별에 바로 반영됩니다.</div>
+          <div class="hint-box">JPEG에 EXIF가 없거나 PNG·WebP 파일인 경우에도 표시용 정보를 직접 입력할 수 있습니다.</div>
+        </div>
+      </section>
+
+      <section class="tab-page" id="tab-style">
+        <div class="style-panel-header">
+          <div>
+            <div class="style-panel-title">스타일 설정</div>
+            <div class="style-panel-sub">기본 스타일과 현재 템플릿의 요소 배치를 분리해 조정합니다.</div>
+          </div>
+          <button class="mini-action" id="resetCurrentElementLayoutBtn" type="button">현재 배치 초기화</button>
+        </div>
+
+        <details class="style-section" open>
+          <summary>기본 스타일</summary>
+          <div class="style-section-body form-grid">
+            <label>브랜드
+              <select id="theme">
+                <option value="auto">EXIF에서 자동</option>
+                <option value="fujifilm">Fujifilm</option>
+                <option value="fujifilm_alt">Fujifilm (Alt Logo)</option>
+                <option value="leica">Leica</option>
+                <option value="canon">Canon</option>
+                <option value="nikon">Nikon</option>
+                <option value="sony">Sony</option>
+                <option value="sony_alt">Sony (Alt Logo · White)</option>
+                <option value="om">OM System</option>
+                <option value="ricoh">Ricoh</option>
+              </select>
+            </label>
+            <label>프레임 색상
+              <input id="frameColor" type="color" value="#f3eee4" />
+            </label>
+            <label>프레임 여백
+              <input id="margin" type="range" min="24" max="96" value="52" />
+            </label>
+            <label>사진 모서리
+              <input id="radius" type="range" min="0" max="32" value="0" />
+            </label>
+          </div>
+        </details>
+
+        <details class="style-section">
+          <summary>폰트</summary>
+          <div class="style-section-body form-grid">
+            <label>제목 폰트
+              <select id="titleFont"><option value="'Pretendard', sans-serif">프리텐다드</option>
+              <option value="'Source Han Sans KR', 'Noto Sans KR', sans-serif">본고딕</option>
+              <option value="'Escoredream', sans-serif">에스코어 드림</option>
+              <option value="'YeogiOttaeJalnan', sans-serif">여기어때 잘난체</option>
+              <option value="'Ridibatang', serif">리디 바탕</option>
+              <option value="'Maru Buri', serif">마루부리</option>
+              <option value="'KyoboHandwriting2019', cursive">교보손글씨체</option>
+              <option value="'MuseumCulturalFoundationClassic', serif">국립박물관문화재단 클래식체</option>
+              <option value="'FrameNoteBMJua', sans-serif">배민 주아체</option>
+              <option value="'FrameNoteBMKkubulim', sans-serif">배민 꾸불림체</option>
+              <option value="'FrameNoteBMEuljiro10', sans-serif">배민 을지로10년후체</option>
+              <option value="'FrameNoteBMEuljiroLong', sans-serif">배민 을지로오래오래체</option>
+              <option value="'FrameNoteBMEuljiro', sans-serif">배민 을지로체</option>
+              <option value="'FrameNoteYangjin', sans-serif">양진체</option>
+              <option value="'FrameNoteDanjoBold', sans-serif">단조 Bold</option>
+              <option value="'FrameNoteTenada', sans-serif">태나다체</option>
+              <option value="'FrameNoteMapoAgape', sans-serif">마포 애민</option>
+              <option value="'FrameNoteMapoBackpacking', sans-serif">마포 배낭여행</option>
+              <option value="'FrameNoteMapoDPP', sans-serif">마포 당인리발전소</option>
+              <option value="'FrameNoteMapoHongdae', sans-serif">마포 홍대프리덤</option>
+              <option value="'FrameNoteDesignHouseLight', sans-serif">디자인하우스 Light</option>
+              <option value="'FrameNoteDesignHouseBold', sans-serif">디자인하우스 Bold</option></select>
+            </label>
+            <label>본문 폰트
+              <select id="bodyFont"><option value="'Pretendard', sans-serif">프리텐다드</option>
+              <option value="'Source Han Sans KR', 'Noto Sans KR', sans-serif">본고딕</option>
+              <option value="'Escoredream', sans-serif">에스코어 드림</option>
+              <option value="'YeogiOttaeJalnan', sans-serif">여기어때 잘난체</option>
+              <option value="'Ridibatang', serif">리디 바탕</option>
+              <option value="'Maru Buri', serif">마루부리</option>
+              <option value="'KyoboHandwriting2019', cursive">교보손글씨체</option>
+              <option value="'MuseumCulturalFoundationClassic', serif">국립박물관문화재단 클래식체</option>
+              <option value="'FrameNoteBMJua', sans-serif">배민 주아체</option>
+              <option value="'FrameNoteBMKkubulim', sans-serif">배민 꾸불림체</option>
+              <option value="'FrameNoteBMEuljiro10', sans-serif">배민 을지로10년후체</option>
+              <option value="'FrameNoteBMEuljiroLong', sans-serif">배민 을지로오래오래체</option>
+              <option value="'FrameNoteBMEuljiro', sans-serif">배민 을지로체</option>
+              <option value="'FrameNoteYangjin', sans-serif">양진체</option>
+              <option value="'FrameNoteDanjoBold', sans-serif">단조 Bold</option>
+              <option value="'FrameNoteTenada', sans-serif">태나다체</option>
+              <option value="'FrameNoteMapoAgape', sans-serif">마포 애민</option>
+              <option value="'FrameNoteMapoBackpacking', sans-serif">마포 배낭여행</option>
+              <option value="'FrameNoteMapoDPP', sans-serif">마포 당인리발전소</option>
+              <option value="'FrameNoteMapoHongdae', sans-serif">마포 홍대프리덤</option>
+              <option value="'FrameNoteDesignHouseLight', sans-serif">디자인하우스 Light</option>
+              <option value="'FrameNoteDesignHouseBold', sans-serif">디자인하우스 Bold</option></select>
+            </label>
+            <label class="full">메타 폰트
+              <select id="metaFont"><option value="'Pretendard', sans-serif">프리텐다드</option>
+              <option value="'Source Han Sans KR', 'Noto Sans KR', sans-serif">본고딕</option>
+              <option value="'Escoredream', sans-serif">에스코어 드림</option>
+              <option value="'YeogiOttaeJalnan', sans-serif">여기어때 잘난체</option>
+              <option value="'Ridibatang', serif">리디 바탕</option>
+              <option value="'Maru Buri', serif">마루부리</option>
+              <option value="'KyoboHandwriting2019', cursive">교보손글씨체</option>
+              <option value="'MuseumCulturalFoundationClassic', serif">국립박물관문화재단 클래식체</option>
+              <option value="'FrameNoteBMJua', sans-serif">배민 주아체</option>
+              <option value="'FrameNoteBMKkubulim', sans-serif">배민 꾸불림체</option>
+              <option value="'FrameNoteBMEuljiro10', sans-serif">배민 을지로10년후체</option>
+              <option value="'FrameNoteBMEuljiroLong', sans-serif">배민 을지로오래오래체</option>
+              <option value="'FrameNoteBMEuljiro', sans-serif">배민 을지로체</option>
+              <option value="'FrameNoteYangjin', sans-serif">양진체</option>
+              <option value="'FrameNoteDanjoBold', sans-serif">단조 Bold</option>
+              <option value="'FrameNoteTenada', sans-serif">태나다체</option>
+              <option value="'FrameNoteMapoAgape', sans-serif">마포 애민</option>
+              <option value="'FrameNoteMapoBackpacking', sans-serif">마포 배낭여행</option>
+              <option value="'FrameNoteMapoDPP', sans-serif">마포 당인리발전소</option>
+              <option value="'FrameNoteMapoHongdae', sans-serif">마포 홍대프리덤</option>
+              <option value="'FrameNoteDesignHouseLight', sans-serif">디자인하우스 Light</option>
+              <option value="'FrameNoteDesignHouseBold', sans-serif">디자인하우스 Bold</option></select>
+            </label>
+          </div>
+        </details>
+
+        <details class="style-section">
+          <summary>색상</summary>
+          <div class="style-section-body form-grid">
+            <label data-color-mode>글자 색상 방식
+              <select id="textColorMode">
+                <option value="auto">템플릿 기본색</option>
+                <option value="custom">사용자 지정</option>
+              </select>
+            </label>
+            <label data-color-control="title">제목 색상
+              <input id="titleColor" type="color" value="#171717" />
+            </label>
+            <label data-color-control="body">본문 색상
+              <input id="bodyColor" type="color" value="#171717" />
+            </label>
+            <label data-color-control="meta">메타 색상
+              <input id="metaColor" type="color" value="#5f5f5f" />
+            </label>
+            <label data-color-control="location">위치 색상
+              <input id="locationColor" type="color" value="#5f5f5f" />
+            </label>
+          </div>
+        </details>
+
+        <details class="style-section element-layout-section" open>
+          <summary>요소별 위치 · 크기 · 행간</summary>
+          <div class="style-section-body">
+            <div class="element-layout-help">현재 템플릿에서 사용하는 요소만 표시됩니다. X·Y 이동 범위를 프레임 전체보다 넓게 확장해 각 요소를 프레임 안 어느 위치로든 이동할 수 있습니다. Thought·Note·질문 문구는 여러 줄일 때 행간도 조절할 수 있습니다. 조정값은 템플릿별로 따로 저장됩니다.</div>
+            <div id="elementControlList" class="element-control-list"></div>
+          </div>
+        </details>
+
+        <details class="style-section" data-poster-control>
+          <summary>Poster Overlay 전용</summary>
+          <div class="style-section-body form-grid">
+            <label>제목 쓰기 방향
+              <select id="posterTitleDirection">
+                <option value="horizontal">가로쓰기</option>
+                <option value="vertical">세로쓰기</option>
+              </select>
+            </label>
+            <label>내용 쓰기 방향
+              <select id="posterBodyDirection">
+                <option value="horizontal">가로쓰기</option>
+                <option value="vertical">세로쓰기</option>
+              </select>
+            </label>
+            <label>제목 기본 크기
+              <input id="posterTitleSize" type="range" min="24" max="140" value="66" />
+            </label>
+            <label>내용 기본 크기
+              <input id="posterBodySize" type="range" min="12" max="72" value="22" />
+            </label>
+            <label>제목 가로 기준점
+              <input id="posterTitleX" type="range" min="0" max="100" value="0" />
+            </label>
+            <label>제목 세로 기준점
+              <input id="posterTitleY" type="range" min="0" max="100" value="72" />
+            </label>
+            <label>내용 가로 기준점
+              <input id="posterBodyX" type="range" min="0" max="100" value="0" />
+            </label>
+            <label>내용 세로 기준점
+              <input id="posterBodyY" type="range" min="0" max="100" value="84" />
+            </label>
+            <div class="full hint-box">기준점으로 큰 위치를 잡고, 요소별 위치 카드에서 미세 조정합니다.</div>
+          </div>
+        </details>
+
+        <details class="style-section">
+          <summary>추가 폰트 관리</summary>
+          <div class="style-section-body">
+            <label class="font-import-panel">사용자 폰트 추가
+              <input id="customFontFiles" type="file" accept=".otf,.ttf,.woff,.woff2,font/otf,font/ttf,font/woff,font/woff2" multiple />
+              <div class="font-import-note">OTF · TTF · WOFF · WOFF2 파일을 선택하세요. 파일명을 기준으로 목록에 자동 추가되며, 아래에서 표시 이름을 변경할 수 있습니다.</div>
+              <div id="customFontStatus" class="hint-box">추가한 폰트는 브라우저 저장소에 보관하고, 실제 선택한 폰트만 메모리에 불러옵니다.</div>
+            </label>
+            <div id="customFontList" class="custom-font-list" aria-live="polite"></div>
+          </div>
+        </details>
+
+        <details class="style-section">
+          <summary>안내</summary>
+          <div class="style-section-body info-stack">
+            <div class="hint-box">브랜드 로고는 앱 내부 PNG 데이터로 내장되어 있어 JPEG 저장 시 함께 출력됩니다.</div>
+            <div class="hint-box" id="styleConstraintHint">현재 레이아웃은 프레임 색상 수정 가능.</div>
+          </div>
+        </details>
+
+        <div hidden aria-hidden="true">
+          <input id="titleScale" value="100" /><input id="titleOffsetX" value="0" /><input id="titleOffsetY" value="0" />
+          <input id="bodyScale" value="100" /><input id="bodyOffsetX" value="0" /><input id="bodyOffsetY" value="0" />
+          <input id="locationScale" value="100" /><input id="locationOffsetX" value="0" /><input id="locationOffsetY" value="0" />
+          <input id="exifScale" value="100" /><input id="exifOffsetX" value="0" /><input id="exifOffsetY" value="0" />
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <span>사진과 메모는 브라우저 안에서만 처리됩니다.</span>
+    <span>저장은 localStorage 사용 · 현재/일괄 내보내기는 JPEG 및 ZIP</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
