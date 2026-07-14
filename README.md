@@ -105,7 +105,7 @@ Sony Alt Logo는 어두운 배경에서 사용할 수 있는 밝은 로고입니
 
 ## 저작권 및 이용 안내
 
-- Copyright © 2026 Jaden_fujipuerson. All rights reserved.
+- Copyright © 2026 Jaden_fujipuerson (KIM JEONGHA). All rights reserved.
 - FrameNote로 제작한 결과 이미지는 개인 및 상업적 사진 작업에 사용할 수 있습니다.
 - FrameNote 프로그램 자체의 판매, 무단 재배포, 재패키징 및 수정본 공개 배포는 허용되지 않습니다.
 - 브랜드 로고, 폰트 및 외부 라이브러리의 권리는 각 권리자에게 있습니다.
@@ -115,3 +115,17 @@ Sony Alt Logo는 어두운 배경에서 사용할 수 있는 밝은 로고입니
 ## 저작권 및 이용 안내
 
 앱 상단의 `i` 버튼에서 저작권 및 이용 안내를 확인할 수 있습니다. 안내는 한국어를 먼저 표시하고 영어를 함께 제공합니다. 상세 내용은 `LICENSE.txt`와 `THIRD_PARTY_NOTICES.txt`에 한국어 우선 순서로 수록되어 있습니다.
+
+## 문의 / Contact
+
+저작권, 배포 허가 및 권리 관련 문의:
+
+- restinmylife@naver.com
+
+이 연락처는 저작권 및 배포 관련 문의를 위한 것이며, 개별 사용법 안내나 기술 지원을 보장하지 않습니다.
+
+Copyright, distribution-permission, and rights inquiries:
+
+- restinmylife@naver.com
+
+This contact is provided for copyright and distribution-related inquiries. Individual usage assistance or technical support is not guaranteed.
