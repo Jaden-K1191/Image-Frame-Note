@@ -78,10 +78,12 @@ Chrome 또는 Edge에서는 `저장 폴더 선택` 버튼으로 출력 위치를
 - Nikon
 - Sony
 - Sony Alt Logo
+- Lumix
+- Lumix Alt Logo
 - OM System
 - Ricoh
 
-Sony Alt Logo는 어두운 배경에서 사용할 수 있는 밝은 로고입니다.
+Sony Alt Logo와 Lumix Alt Logo는 어두운 배경에서 사용할 수 있는 흰색 로고입니다.
 
 ## 폰트
 

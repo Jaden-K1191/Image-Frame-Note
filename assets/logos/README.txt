@@ -6,6 +6,7 @@
 - canon.jpg
 - nikon.webp
 - sony.svg
+- lumix.svg
 - om.png
 - ricoh.svg
 
@@ -22,3 +23,7 @@ svg, png, jpg, jpeg, webp
 - Fujifilm (Alt Logo) = fujifilm_1
 
 sony_alt.svg : White Sony alternate logo for dark backgrounds.
+
+Lumix 로고:
+- lumix.svg : Black Lumix logo for bright backgrounds.
+- lumix_alt.svg : White Lumix alternate logo for dark backgrounds.
