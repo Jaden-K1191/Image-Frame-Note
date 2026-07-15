@@ -80,74 +80,76 @@
     prompt:{label:'질문 문구', badge:'PROMPT', setting:'showPrompt', kind:'body', lineHeight:true},
     rating:{label:'별점', badge:'RATING', setting:'showRating', kind:'meta'},
     logo:{label:'로고 / 브랜드', badge:'LOGO', setting:'showLogo', kind:'meta'},
-    exif:{label:'EXIF', badge:'META', setting:'showExif', kind:'exif'}
+    exif:{label:'EXIF', badge:'META', setting:'showExif', kind:'exif'},
+    creator:{label:'저작자', badge:'AUTHOR', setting:'showCreator', kind:'meta'},
+    watermark:{label:'워터마크', badge:'WATERMARK', setting:'showWatermark', kind:'meta'}
   };
 
   const LAYOUT_CONFIG = {
     journal:{
-      settings:['showTitle','showLocation','showThought','showNote','showProject','showRating','showPrompt','showLogo','showExif'],
-      texts:['title','location','project','rating','thought','note','promptText'],
+      settings:['showTitle','showLocation','showThought','showNote','showProject','showRating','showPrompt','showLogo','showExif','showCreator','showWatermark'],
+      texts:['title','location','project','rating','thought','note','promptText','creator','watermarkText'],
       colors:['title','body','meta','location'],
-      elements:['title','location','logo','exif','prompt','thought','note','project','rating']
+      elements:['title','location','logo','exif','prompt','thought','note','project','rating','creator','watermark']
     },
     contact:{
-      settings:['showTitle','showThought','showPrompt','showLogo','showExif'],
-      texts:['title','thought','promptText'],
+      settings:['showTitle','showThought','showPrompt','showLogo','showExif','showCreator','showWatermark'],
+      texts:['title','thought','promptText','creator','watermarkText'],
       colors:['title','body','meta'],
-      elements:['logo','exif','title','prompt','thought']
+      elements:['logo','exif','title','prompt','thought','creator','watermark']
     },
     gallery:{
-      settings:['showLocation','showNote','showProject','showLogo','showExif'],
-      texts:['location','project','note'],
+      settings:['showLocation','showNote','showProject','showLogo','showExif','showCreator','showWatermark'],
+      texts:['location','project','note','creator','watermarkText'],
       colors:['title','body','meta','location'],
-      elements:['logo','exif','location','project','note']
+      elements:['logo','exif','location','project','note','creator','watermark']
     },
     stamp:{
-      settings:['showLogo','showExif'],
-      texts:[],
+      settings:['showLogo','showExif','showCreator','showWatermark'],
+      texts:['creator','watermarkText'],
       colors:[],
-      elements:['logo','exif']
+      elements:['logo','exif','creator','watermark']
     },
     poster:{
-      settings:['showTitle','showLocation','showThought','showProject','showLogo','showExif'],
-      texts:['title','location','project','thought'],
+      settings:['showTitle','showLocation','showThought','showProject','showLogo','showExif','showCreator','showWatermark'],
+      texts:['title','location','project','thought','creator','watermarkText'],
       colors:['title','body','meta','location'],
-      elements:['project','logo','title','thought','location','exif']
+      elements:['project','logo','title','thought','location','exif','creator','watermark']
     },
-    frameonly:{settings:[],texts:[],colors:[],elements:[]},
+    frameonly:{settings:['showCreator','showWatermark'],texts:['creator','watermarkText'],colors:['meta'],elements:['creator','watermark']},
     minimal:{
-      settings:['showLocation','showLogo','showExif'],
-      texts:['location'],
+      settings:['showLocation','showLogo','showExif','showCreator','showWatermark'],
+      texts:['location','creator','watermarkText'],
       colors:['meta','location'],
-      elements:['logo','exif','location']
+      elements:['logo','exif','location','creator','watermark']
     },
     caption:{
-      settings:['showTitle','showLocation','showThought','showExif'],
-      texts:['title','location','thought'],
+      settings:['showTitle','showLocation','showThought','showExif','showCreator','showWatermark'],
+      texts:['title','location','thought','creator','watermarkText'],
       colors:['title','body','meta','location'],
-      elements:['title','thought','location','exif']
+      elements:['title','thought','location','exif','creator','watermark']
     },
     polaroid:{
-      settings:['showTitle','showLocation','showNote','showProject','showExif'],
-      texts:['title','location','note','project'],
+      settings:['showTitle','showLocation','showNote','showProject','showExif','showCreator','showWatermark'],
+      texts:['title','location','note','project','creator','watermarkText'],
       colors:['title','body','meta','location'],
-      elements:['title','exif','project','location','note']
+      elements:['title','exif','project','location','note','creator','watermark']
     }
   };
 
   let elementLayoutState = {};
   let renderedElementLayout = null;
   let originalExifValues = null;
-  const TEXT_FIELD_IDS = ['title','location','project','rating','thought','note','promptText'];
+  const TEXT_FIELD_IDS = ['title','location','project','rating','thought','note','promptText','creator','watermarkText','watermarkDataUrl','watermarkFileName'];
   const TEXT_FIELD_SET = new Set(TEXT_FIELD_IDS);
   const DESIGN_VALUE_FIELD_IDS = [
     'theme','titleFont','bodyFont','metaFont','textColorMode','titleColor','bodyColor','metaColor','locationColor',
     'posterTitleDirection','posterBodyDirection','posterTitleSize','posterBodySize','posterTitleX','posterTitleY','posterBodyX','posterBodyY',
     'titleScale','titleOffsetX','titleOffsetY','bodyScale','bodyOffsetX','bodyOffsetY',
     'locationScale','locationOffsetX','locationOffsetY','exifScale','exifOffsetX','exifOffsetY',
-    'frameColor','margin','radius'
+    'frameColor','margin','radius','creatorFormat','creatorColor','watermarkColor'
   ];
-  const DESIGN_CHECK_FIELD_IDS = ['showTitle','showLocation','showThought','showNote','showProject','showRating','showPrompt','showLogo','showExif'];
+  const DESIGN_CHECK_FIELD_IDS = ['showTitle','showLocation','showThought','showNote','showProject','showRating','showPrompt','showLogo','showExif','showCreator','showWatermark'];
   const DESIGN_FIELD_SET = new Set([...DESIGN_VALUE_FIELD_IDS, ...DESIGN_CHECK_FIELD_IDS]);
   const DISPLAY_SETTING_ELEMENT_KEYS = {
     showTitle:'title',
@@ -158,7 +160,9 @@
     showRating:'rating',
     showPrompt:'prompt',
     showLogo:'logo',
-    showExif:'exif'
+    showExif:'exif',
+    showCreator:'creator',
+    showWatermark:'watermark'
   };
   const LAYOUT_LABELS = {
     journal:'Journal B', contact:'Contact Sheet C', gallery:'Gallery Frame', stamp:'Film Date Overlay',
@@ -174,7 +178,8 @@
     date:'2026-07-12', time:'16:32',
     title:'Reflection #12', location:'Hanoi, Vietnam', project:'Micro City',
     rating:'4', thought:'거울에 비친 풍경이 실제 풍경보다 더 흥미롭게 보여 촬영했다. 반사를 하나의 프레임처럼 활용.',
-    note:'비 오는 날 다시 와서 우산이 들어간 장면을 찍기.', promptText:'오늘은 왜 이 사진을 찍었나요?'
+    note:'비 오는 날 다시 와서 우산이 들어간 장면을 찍기.', promptText:'오늘은 왜 이 사진을 찍었나요?',
+    creator:'Jaden_fujipuerson (KIM JEONGHA)', watermarkText:'', watermarkDataUrl:'', watermarkFileName:''
   };
 
   function normalizeFontFileName(name){
@@ -1039,13 +1044,15 @@
   function getState(){
     const ids = [
       'make','model','lens','focal','aperture','shutter','iso','date','time',
-      'title','location','project','rating','thought','note','promptText',
-      'theme','titleFont','bodyFont','metaFont','textColorMode','titleColor','bodyColor','metaColor','locationColor','posterTitleDirection','posterBodyDirection','posterTitleSize','posterBodySize','posterTitleX','posterTitleY','posterBodyX','posterBodyY','titleScale','titleOffsetX','titleOffsetY','bodyScale','bodyOffsetX','bodyOffsetY','locationScale','locationOffsetX','locationOffsetY','exifScale','exifOffsetX','exifOffsetY','frameColor','margin','radius'
+      'title','location','project','rating','thought','note','promptText','creator','watermarkText',
+      'theme','titleFont','bodyFont','metaFont','textColorMode','titleColor','bodyColor','metaColor','locationColor','posterTitleDirection','posterBodyDirection','posterTitleSize','posterBodySize','posterTitleX','posterTitleY','posterBodyX','posterBodyY','titleScale','titleOffsetX','titleOffsetY','bodyScale','bodyOffsetX','bodyOffsetY','locationScale','locationOffsetX','locationOffsetY','exifScale','exifOffsetX','exifOffsetY','frameColor','margin','radius','creatorFormat','creatorColor','watermarkColor'
     ];
     const state = { layout, batchApplyMode, elementLayoutState: JSON.parse(JSON.stringify(elementLayoutState)) };
     ids.forEach(id => state[id] = $(id).value);
-    ['showTitle','showLocation','showThought','showNote','showProject','showRating','showPrompt','showLogo','showExif']
+    ['showTitle','showLocation','showThought','showNote','showProject','showRating','showPrompt','showLogo','showExif','showCreator','showWatermark']
       .forEach(id => state[id] = $(id).checked);
+    state.watermarkDataUrl = virtualTextValues.watermarkDataUrl || '';
+    state.watermarkFileName = virtualTextValues.watermarkFileName || '';
     return state;
   }
 
@@ -1286,11 +1293,13 @@ async function setBatchApplyMode(enabled){
   $('statusText').textContent = batchApplyMode ? '일괄 적용 모드' : '개별 작업 모드';
 }
 
+const virtualTextValues = {watermarkDataUrl:'', watermarkFileName:''};
+
 function captureTextValues(){
   const values = {};
   TEXT_FIELD_IDS.forEach(id => {
     const element = $(id);
-    values[id] = element ? element.value : '';
+    values[id] = element ? element.value : (virtualTextValues[id] || '');
   });
   return values;
 }
@@ -1298,8 +1307,10 @@ function captureTextValues(){
 function setTextValues(values, {render=true, save=true} = {}){
   TEXT_FIELD_IDS.forEach(id => {
     const element = $(id);
-    if(element) element.value = values && values[id] != null ? values[id] : '';
+    if(element) element.value = values && values[id] != null ? values[id] : ''; else virtualTextValues[id] = values && values[id] != null ? values[id] : '';
   });
+  const watermarkLabel = $('watermarkFileName');
+  if(watermarkLabel) watermarkLabel.textContent = virtualTextValues.watermarkFileName ? `불러온 워터마크: ${virtualTextValues.watermarkFileName}` : '불러온 워터마크 없음';
   if(save) saveState();
   if(render) renderPreview();
 }
@@ -1660,7 +1671,7 @@ function captureExifValues(){
         }
       }
       if(lines.length < maxLines && line) lines.push(line);
-      if(pIdx < paras.length - 1 && lines.length < maxLines) lines.push('');
+      // Explicit newline already starts the next paragraph on the next line.
     });
     return lines.slice(0, maxLines);
   }
@@ -1700,7 +1711,7 @@ function captureExifValues(){
       }
 
       if(lineText) lines.push(lineText);
-      if(paragraphIndex < paragraphs.length - 1) lines.push('');
+      // Explicit newline already creates the next line without an extra blank row.
     });
 
     return lines;
@@ -1977,6 +1988,89 @@ function captureExifValues(){
     };
   }
 
+
+  const watermarkImageCache = new Map();
+
+  function creatorDisplayText(state){
+    const name = String(state.creator || '').trim();
+    if(!name) return '';
+    const format = state.creatorFormat || 'copyright';
+    const year = String(state.date || '').slice(0,4) || String(new Date().getFullYear());
+    if(format === 'photoBy') return `Photo by ${name}`;
+    if(format === 'copyrightYear') return `Copyright © ${year} ${name}`;
+    if(format === 'nameOnly') return name;
+    return `© ${name}`;
+  }
+
+  function getWatermarkImage(dataUrl){
+    if(!dataUrl) return null;
+    if(watermarkImageCache.has(dataUrl)) return watermarkImageCache.get(dataUrl);
+    const record = {image:new Image(), loaded:false, failed:false};
+    record.image.onload = () => { record.loaded = true; renderPreview(); };
+    record.image.onerror = () => { record.failed = true; };
+    record.image.src = dataUrl;
+    watermarkImageCache.set(dataUrl, record);
+    return record;
+  }
+
+  function drawTintedWatermarkImage(ctx, imageObject, x, y, width, height, color){
+    const temp = document.createElement('canvas');
+    temp.width = Math.max(1, Math.round(width));
+    temp.height = Math.max(1, Math.round(height));
+    const tctx = temp.getContext('2d');
+    if(!tctx) return;
+    tctx.drawImage(imageObject, 0, 0, temp.width, temp.height);
+    tctx.globalCompositeOperation = 'source-in';
+    tctx.fillStyle = color || '#ffffff';
+    tctx.fillRect(0,0,temp.width,temp.height);
+    ctx.drawImage(temp, x, y, width, height);
+  }
+
+  function drawUniversalOverlays(ctx, state, model){
+    const metaFont = state.metaFont || "'Pretendard', sans-serif";
+    if(isActiveSetting(state,'showCreator')){
+      const text = creatorDisplayText(state);
+      if(text){
+        const adj = getElementAdjustments(state, 'meta', 'creator', state.creatorColor || '#ffffff');
+        const size = 18 * adj.scale;
+        ctx.save();
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = state.creatorColor || adj.color;
+        applyInputTextShadow(ctx);
+        setFont(ctx, size, '600', metaFont);
+        ctx.fillText(text, model.width - 34 + adj.dx, model.height - 28 + adj.dy);
+        ctx.restore();
+      }
+    }
+    if(isActiveSetting(state,'showWatermark')){
+      const adj = getElementAdjustments(state, 'meta', 'watermark', state.watermarkColor || '#ffffff');
+      const dataUrl = state.watermarkDataUrl || '';
+      const record = getWatermarkImage(dataUrl);
+      if(record && record.loaded && !record.failed){
+        const sourceW = record.image.naturalWidth || 1;
+        const sourceH = record.image.naturalHeight || 1;
+        const targetW = Math.min(model.width * 0.28, 260) * adj.scale;
+        const targetH = targetW * sourceH / sourceW;
+        const x = 34 + adj.dx;
+        const y = model.height - targetH - 34 + adj.dy;
+        ctx.save();
+        applyInputTextShadow(ctx);
+        drawTintedWatermarkImage(ctx, record.image, x, y, targetW, targetH, state.watermarkColor || '#ffffff');
+        ctx.restore();
+      }else if(state.watermarkText){
+        const size = 18 * adj.scale;
+        ctx.save();
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = state.watermarkColor || '#ffffff';
+        applyInputTextShadow(ctx);
+        setFont(ctx, size, '600', metaFont);
+        ctx.fillText(String(state.watermarkText), 34 + adj.dx, model.height - 28 + adj.dy);
+        ctx.restore();
+      }
+    }
+  }
 
   function stars(ctx, x, y, n, color, size, family, align='left'){
     ctx.save();
@@ -2408,7 +2502,7 @@ function captureExifValues(){
     if(layout === 'gallery'){
       const footerBase = 168;
       const projectH = isActiveSetting(state,'showProject') ? 34 : 0;
-      const noteLines = isActiveSetting(state,'showNote') ? wrapLines(measureCtx, state.note, photoW, 18, fonts.body, '400', 2).length : 0;
+      const noteLines = isActiveSetting(state,'showNote') ? wrapLines(measureCtx, state.note, photoW, 18, fonts.body, '400', 4).length : 0;
       const footer = footerBase + projectH + noteLines * 26;
       const W = photoW + m * 2;
       const H = photoH + m * 2 + footer;
@@ -2447,7 +2541,7 @@ function captureExifValues(){
             yy += 28;
           }
           if(isActiveSetting(state,'showNote')){
-            drawManagedWrappedText(ctx, state, 'body', state.note, m, yy, W - 2*m, 27, 18, lightPalette.body, fonts.body, '400', 2, 'left', 'note');
+            drawManagedWrappedText(ctx, state, 'body', state.note, m, yy, W - 2*m, 27, 18, lightPalette.body, fonts.body, '400', 4, 'left', 'note');
           }
         }
       };
@@ -2459,7 +2553,7 @@ function captureExifValues(){
       const afterPhotoGap = 28;
       const titleH = isActiveSetting(state,'showTitle') ? 36 : 0;
       const promptH = isActiveSetting(state,'showPrompt') ? 26 : 0;
-      const thoughtLines = isActiveSetting(state,'showThought') ? wrapLines(measureCtx, state.thought, photoW - 60, 23, fonts.body, '400', 3).length : 0;
+      const thoughtLines = isActiveSetting(state,'showThought') ? wrapLines(measureCtx, state.thought, photoW - 60, 23, fonts.body, '400', 5).length : 0;
       const thoughtH = isActiveSetting(state,'showThought') ? thoughtLines * 32 : 0;
       const infoBottomBand = 46;
       const contentBlockH = titleH + promptH + thoughtH + 18;
@@ -2503,7 +2597,7 @@ function captureExifValues(){
             yy += 26;
           }
           if(isActiveSetting(state,'showThought')){
-            drawManagedWrappedText(ctx, state, 'body', state.thought, W/2, yy, photoW - 60, 32, 23, darkPalette.body, fonts.body, '400', 3, 'center', 'thought');
+            drawManagedWrappedText(ctx, state, 'body', state.thought, W/2, yy, photoW - 60, 32, 23, darkPalette.body, fonts.body, '400', 5, 'center', 'thought');
           }
 
           const bottomInfoY = H - 70;
@@ -3273,7 +3367,10 @@ function captureExifValues(){
       exifOffsetY:'0',
       frameColor:'#f3eee4',
       margin:'52',
-      radius:'0'
+      radius:'0',
+      creatorFormat:'copyright',
+      creatorColor:'#ffffff',
+      watermarkColor:'#ffffff'
     };
 
     Object.entries(values).forEach(([id, value]) => {
@@ -3290,7 +3387,9 @@ function captureExifValues(){
       showRating:true,
       showPrompt:false,
       showLogo:true,
-      showExif:true
+      showExif:true,
+      showCreator:false,
+      showWatermark:false
     };
 
     Object.entries(checks).forEach(([id, checked]) => {
@@ -3329,6 +3428,7 @@ function captureExifValues(){
     previewCanvas.height = Math.round(model.height * scale);
     previewCtx.setTransform(scale, 0, 0, scale, 0, 0);
     model.draw(previewCtx);
+    drawUniversalOverlays(previewCtx, state, model);
 
     $('statusText').textContent = '준비됨';
     $('canvasInfo').textContent = `${previewCanvas.width} × ${previewCanvas.height} preview`;
@@ -3344,6 +3444,9 @@ function captureExifValues(){
   }
 
   function selectedLogoReady(state){
+    const watermarkRecord = state.showWatermark && state.watermarkDataUrl ? getWatermarkImage(state.watermarkDataUrl) : null;
+    if(watermarkRecord && !watermarkRecord.loaded && !watermarkRecord.failed) return false;
+
     if(layout === 'stamp' || !isActiveSetting(state, 'showLogo')){
       return true;
     }
@@ -3557,6 +3660,7 @@ ${error && error.message ? error.message : String(error)}`);
 
       outputContext.setTransform(scale, 0, 0, scale, 0, 0);
       model.draw(outputContext);
+      drawUniversalOverlays(outputContext, state, model);
 
       const dataUrl = out.toDataURL('image/jpeg', 0.95);
       if(!dataUrl || dataUrl === 'data:,') throw new Error('브라우저가 JPEG 데이터를 만들지 못했습니다.');
@@ -3684,8 +3788,8 @@ ${error && error.message ? error.message : String(error)}`);
     const state = getState();
 
     if(!selectedLogoReady(state)){
-      $('statusText').textContent = '브랜드 로고 불러오는 중…';
-      alert('브랜드 로고를 불러오는 중입니다. 미리보기에 로고가 나타난 뒤 다시 다운로드 버튼을 눌러주세요.');
+      $('statusText').textContent = '로고 또는 워터마크 불러오는 중…';
+      alert('브랜드 로고 또는 이미지 워터마크를 불러오는 중입니다. 미리보기에 나타난 뒤 다시 다운로드 버튼을 눌러주세요.');
       return;
     }
 
@@ -3919,6 +4023,39 @@ async function loadSample(){
   $('resetCurrentElementLayoutBtn').addEventListener('click', resetCurrentElementLayout);
 
   $('fileInput').addEventListener('change', async e => { await loadFiles(e.target.files); e.target.value = ''; });
+
+  const watermarkFileInput = $('watermarkFile');
+  if(watermarkFileInput){
+    watermarkFileInput.addEventListener('change', event => {
+      const file = event.target.files && event.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        virtualTextValues.watermarkDataUrl = String(reader.result || '');
+        virtualTextValues.watermarkFileName = file.name || 'watermark';
+        const label = $('watermarkFileName');
+        if(label) label.textContent = `불러온 워터마크: ${file.name}`;
+        syncCurrentPhotoValues();
+        saveState();
+        renderPreview();
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    });
+  }
+  const clearWatermarkBtn = $('clearWatermarkBtn');
+  if(clearWatermarkBtn){
+    clearWatermarkBtn.addEventListener('click', () => {
+      virtualTextValues.watermarkDataUrl = '';
+      virtualTextValues.watermarkFileName = '';
+      const label = $('watermarkFileName');
+      if(label) label.textContent = '불러온 워터마크 없음';
+      syncCurrentPhotoValues();
+      saveState();
+      renderPreview();
+    });
+  }
+
   $('customFontFiles').addEventListener('change', async e => {
     await importUserFontFiles(e.target.files);
     e.target.value = '';

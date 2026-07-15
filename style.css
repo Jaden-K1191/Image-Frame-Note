@@ -530,3 +530,10 @@ input[type=color]{height:40px;padding:4px;cursor:pointer}
 .copyright-card h3 span{margin-left:6px;font-size:11px;font-weight:500;color:#8f9aa3}
 .copyright-card .copyright-en{margin-top:9px;padding-top:9px;border-top:1px solid #30363c;color:#929da6;font-size:11.5px;line-height:1.6}
 .copyright-card .copyright-en-list{margin-top:10px;padding-top:9px;border-top:1px solid #30363c;color:#929da6;font-size:11.5px;line-height:1.6}
+
+
+.creator-watermark-panel{padding:12px 14px;border:1px solid rgba(0,0,0,.09);border-radius:12px;background:rgba(0,0,0,.025)}
+.watermark-file-label input[type="file"]{margin-top:8px;width:100%}
+.field-help{display:block;margin-top:6px;font-size:12px;line-height:1.5;color:#777}
+.watermark-file-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.watermark-file-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#666}

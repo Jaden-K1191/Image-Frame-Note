@@ -131,3 +131,12 @@ Copyright, distribution-permission, and rights inquiries:
 - restinmylife@naver.com
 
 This contact is provided for copyright and distribution-related inquiries. Individual usage assistance or technical support is not guaranteed.
+
+
+## Final Patch — 저작자 및 워터마크
+
+- 저작자 표시 요소 추가: © 저작자, Photo by 저작자, Copyright © 연도 저작자, 이름만 표시
+- 텍스트 또는 이미지 워터마크 지원
+- 워터마크 이미지 색상 변경 및 크기·X·Y 위치 조정
+- 저작자 표시의 색상·크기·X·Y 위치 조정
+- Thought / Note의 수동 줄바꿈 시 불필요한 빈 줄이 생기거나 두 번째 줄이 잘리는 문제 수정
