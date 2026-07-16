@@ -226,9 +226,11 @@
         <details class="style-section" open>
           <summary>기본 스타일</summary>
           <div class="style-section-body form-grid">
-            <label>브랜드
+            <label data-brand-control>브랜드
               <select id="theme">
                 <option value="auto">EXIF에서 자동</option>
+                <option value="exif_text">EXIF 제조사명 (텍스트)</option>
+                <option value="custom_logo">사용자 제조사 로고</option>
                 <option value="fujifilm">Fujifilm</option>
                 <option value="fujifilm_alt">Fujifilm (Alt Logo)</option>
                 <option value="leica">Leica</option>
@@ -242,6 +244,17 @@
                 <option value="ricoh">Ricoh</option>
               </select>
             </label>
+            <div class="full custom-brand-logo-panel" data-custom-logo-control>
+              <div class="custom-brand-logo-actions">
+                <button class="button ghost" id="customBrandLogoBtn" type="button">사용자 제조사 로고 추가</button>
+                <button class="button ghost" id="clearCustomBrandLogoBtn" type="button">추가 로고 제거</button>
+              </div>
+              <input id="customBrandLogoFile" type="file" accept="image/png,image/svg+xml,image/webp,image/jpeg,.png,.svg,.webp,.jpg,.jpeg" hidden />
+              <input id="customLogoDataUrl" type="hidden" value="" />
+              <input id="customLogoFileName" type="hidden" value="" />
+              <div id="customBrandLogoStatus" class="custom-brand-logo-status">추가한 제조사 로고 없음</div>
+              <div class="field-help">PNG · SVG · WebP · JPEG 사용 가능(최대 2MB). 투명 배경의 PNG 또는 외부 이미지를 참조하지 않는 SVG를 권장하며, 로고 색상은 파일 원본 그대로 출력됩니다. 이 기능은 이미지 로고를 표시하는 템플릿에서만 사용할 수 있습니다.</div>
+            </div>
             <label>프레임 색상
               <input id="frameColor" type="color" value="#f3eee4" />
             </label>
@@ -430,7 +443,7 @@
         <details class="style-section">
           <summary>안내</summary>
           <div class="style-section-body info-stack">
-            <div class="hint-box">브랜드 로고는 앱 내부 PNG 데이터로 내장되어 있어 JPEG 저장 시 함께 출력됩니다.</div>
+            <div class="hint-box">등록된 브랜드는 내장 로고로 출력됩니다. 목록에 없는 제조사는 ‘EXIF 제조사명 (텍스트)’을 선택하거나, 이미지 로고를 지원하는 템플릿에서 본인의 제조사 로고를 직접 추가할 수 있습니다.</div>
             <div class="hint-box" id="styleConstraintHint">현재 레이아웃은 프레임 색상 수정 가능.</div>
           </div>
         </details>

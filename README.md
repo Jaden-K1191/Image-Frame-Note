@@ -27,6 +27,8 @@ Chrome 또는 Edge 사용을 권장합니다.
 - 사진별 제목, 본문, 위치, 프로젝트, 별점, 질문 문구 입력
 - JPEG EXIF 자동 읽기 및 직접 수정
 - 카메라 브랜드 자동 판별 및 로고 표시
+- 미등록 제조사는 EXIF 제조사명을 텍스트 브랜드로 표시
+- 이미지 로고 지원 템플릿에서 사용자 제조사 로고 추가(PNG, SVG, WebP, JPEG · 최대 2MB)
 - 템플릿별 표시 요소 선택
 - 제목, 본문, 위치, 로고, EXIF 등의 위치·크기·행간 조절
 - 일괄 적용 모드와 사진별 개별 작업 모드
@@ -84,6 +86,10 @@ Chrome 또는 Edge에서는 `저장 폴더 선택` 버튼으로 출력 위치를
 - Ricoh
 
 Sony Alt Logo와 Lumix Alt Logo는 어두운 배경에서 사용할 수 있는 흰색 로고입니다.
+
+스타일 탭에서 `EXIF 제조사명 (텍스트)`을 선택하면 목록에 없는 카메라 제조사도 EXIF의 `Make` 값을 그대로 브랜드명으로 표시할 수 있습니다. `EXIF에서 자동`을 선택한 경우에도 등록되지 않은 제조사는 Fujifilm로 대체하지 않고 EXIF 제조사명이 텍스트로 출력됩니다.
+
+Journal B, Contact Sheet C, Gallery Frame, Poster Overlay, Minimal Bottom Bar처럼 이미지 로고를 표시하는 템플릿에서는 `사용자 제조사 로고 추가` 버튼으로 로고를 불러올 수 있습니다. PNG, SVG, WebP, JPEG를 지원하며 투명 PNG 또는 자체 포함형 SVG를 권장합니다. Film Date Overlay처럼 제조사명을 문자로 표시하는 템플릿과 로고가 없는 템플릿에서는 이 버튼이 표시되지 않습니다.
 
 ## 폰트
 
@@ -149,3 +155,4 @@ This contact is provided for copyright and distribution-related inquiries. Indiv
 
 ## Film Date Overlay segment display
 Film Date Overlay uses an embedded 16-segment vector display renderer. It does not depend on an external font file, so the preview and exported JPEG remain consistent across iPhone/iPad, Windows, macOS, Chrome, Edge and Safari.
+

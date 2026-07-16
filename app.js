@@ -87,18 +87,21 @@
 
   const LAYOUT_CONFIG = {
     journal:{
+      imageLogo:true,
       settings:['showTitle','showLocation','showThought','showNote','showProject','showRating','showPrompt','showLogo','showExif','showCreator','showWatermark'],
       texts:['title','location','project','rating','thought','note','promptText','creator','watermarkText'],
       colors:['title','body','meta','location'],
       elements:['title','location','logo','exif','prompt','thought','note','project','rating','creator','watermark']
     },
     contact:{
+      imageLogo:true,
       settings:['showTitle','showThought','showPrompt','showLogo','showExif','showCreator','showWatermark'],
       texts:['title','thought','promptText','creator','watermarkText'],
       colors:['title','body','meta'],
       elements:['logo','exif','title','prompt','thought','creator','watermark']
     },
     gallery:{
+      imageLogo:true,
       settings:['showLocation','showNote','showProject','showLogo','showExif','showCreator','showWatermark'],
       texts:['location','project','note','creator','watermarkText'],
       colors:['title','body','meta','location'],
@@ -111,6 +114,7 @@
       elements:['logo','exif','creator','watermark']
     },
     poster:{
+      imageLogo:true,
       settings:['showTitle','showLocation','showThought','showProject','showLogo','showExif','showCreator','showWatermark'],
       texts:['title','location','project','thought','creator','watermarkText'],
       colors:['title','body','meta','location'],
@@ -118,6 +122,7 @@
     },
     frameonly:{settings:['showCreator','showWatermark'],texts:['creator','watermarkText'],colors:['meta'],elements:['creator','watermark']},
     minimal:{
+      imageLogo:true,
       settings:['showLocation','showLogo','showExif','showCreator','showWatermark'],
       texts:['location','creator','watermarkText'],
       colors:['meta','location'],
@@ -143,7 +148,7 @@
   const TEXT_FIELD_IDS = ['title','location','project','rating','thought','note','promptText','creator','watermarkText','watermarkDataUrl','watermarkFileName'];
   const TEXT_FIELD_SET = new Set(TEXT_FIELD_IDS);
   const DESIGN_VALUE_FIELD_IDS = [
-    'theme','titleFont','bodyFont','metaFont','textColorMode','titleColor','bodyColor','metaColor','locationColor',
+    'theme','customLogoDataUrl','customLogoFileName','titleFont','bodyFont','metaFont','textColorMode','titleColor','bodyColor','metaColor','locationColor',
     'posterTitleDirection','posterBodyDirection','posterTitleSize','posterBodySize','posterTitleX','posterTitleY','posterBodyX','posterBodyY',
     'titleScale','titleOffsetX','titleOffsetY','bodyScale','bodyOffsetX','bodyOffsetY',
     'locationScale','locationOffsetX','locationOffsetY','exifScale','exifOffsetX','exifOffsetY',
@@ -1045,7 +1050,7 @@
     const ids = [
       'make','model','lens','focal','aperture','shutter','iso','date','time',
       'title','location','project','rating','thought','note','promptText','creator','watermarkText',
-      'theme','titleFont','bodyFont','metaFont','textColorMode','titleColor','bodyColor','metaColor','locationColor','posterTitleDirection','posterBodyDirection','posterTitleSize','posterBodySize','posterTitleX','posterTitleY','posterBodyX','posterBodyY','titleScale','titleOffsetX','titleOffsetY','bodyScale','bodyOffsetX','bodyOffsetY','locationScale','locationOffsetX','locationOffsetY','exifScale','exifOffsetX','exifOffsetY','frameColor','margin','radius','creatorFormat','creatorColor','watermarkColor'
+      'theme','customLogoDataUrl','customLogoFileName','titleFont','bodyFont','metaFont','textColorMode','titleColor','bodyColor','metaColor','locationColor','posterTitleDirection','posterBodyDirection','posterTitleSize','posterBodySize','posterTitleX','posterTitleY','posterBodyX','posterBodyY','titleScale','titleOffsetX','titleOffsetY','bodyScale','bodyOffsetX','bodyOffsetY','locationScale','locationOffsetX','locationOffsetY','exifScale','exifOffsetX','exifOffsetY','frameColor','margin','radius','creatorFormat','creatorColor','watermarkColor'
     ];
     const state = { layout, batchApplyMode, elementLayoutState: JSON.parse(JSON.stringify(elementLayoutState)) };
     ids.forEach(id => state[id] = $(id).value);
@@ -1110,8 +1115,35 @@
     return layoutConfigFor(state).settings.includes(name) && !!state[name];
   }
 
+  function exifManufacturerTheme(state){
+    const make = String(state?.make || '').trim();
+    const model = String(state?.model || '').trim();
+    const label = make || model || 'CAMERA';
+    return {
+      key:'exif_text',
+      brand:label,
+      accent:state?.metaColor || '#5f5f5f',
+      textOnly:true
+    };
+  }
+
+  function customManufacturerTheme(state){
+    const label = String(state?.make || state?.model || state?.customLogoFileName || 'CAMERA').trim();
+    const dataUrl = String(state?.customLogoDataUrl || '').trim();
+    if(!dataUrl) return exifManufacturerTheme(state);
+    return {
+      key:'custom_logo',
+      brand:label,
+      accent:state?.metaColor || '#5f5f5f',
+      dataUrl,
+      custom:true
+    };
+  }
+
   function effectiveTheme(state){
-    if(state.theme !== 'auto') return BRANDS[state.theme] || BRANDS.fujifilm;
+    if(state.theme === 'custom_logo') return customManufacturerTheme(state);
+    if(state.theme === 'exif_text') return exifManufacturerTheme(state);
+    if(state.theme !== 'auto') return BRANDS[state.theme] || exifManufacturerTheme(state);
     const text = `${state.make} ${state.model}`.toLowerCase();
     if(text.includes('fuji')) return BRANDS.fujifilm;
     if(text.includes('leica')) return BRANDS.leica;
@@ -1121,7 +1153,7 @@
     if(text.includes('panasonic') || text.includes('lumix')) return BRANDS.lumix;
     if(text.includes('olympus') || text.includes('om system')) return BRANDS.om;
     if(text.includes('ricoh')) return BRANDS.ricoh;
-    return BRANDS.fujifilm;
+    return exifManufacturerTheme(state);
   }
 
   function stylesForLayout(lay){
@@ -1174,8 +1206,31 @@
     });
   }
 
+  function updateCustomBrandLogoUI(){
+    const fileName = String($('customLogoFileName')?.value || '').trim();
+    const hasLogo = !!String($('customLogoDataUrl')?.value || '').trim();
+    const status = $('customBrandLogoStatus');
+    const clearButton = $('clearCustomBrandLogoBtn');
+    if(status){
+      status.textContent = hasLogo
+        ? `추가한 제조사 로고: ${fileName || '사용자 로고'}`
+        : '추가한 제조사 로고 없음';
+    }
+    if(clearButton) clearButton.disabled = !hasLogo;
+  }
+
   function updateControlVisibility(){
     const cfg = activeLayoutConfig();
+    const supportsBrand = cfg.settings.includes('showLogo');
+    const supportsImageLogo = cfg.imageLogo === true;
+    document.querySelectorAll('[data-brand-control]').forEach(el => {
+      el.classList.toggle('hidden-control', !supportsBrand);
+    });
+    document.querySelectorAll('[data-custom-logo-control]').forEach(el => {
+      el.classList.toggle('hidden-control', !supportsImageLogo);
+    });
+    updateCustomBrandLogoUI();
+
     const displayOptions = $('displayOptions');
     if(displayOptions) displayOptions.style.display = 'grid';
 
@@ -1187,7 +1242,8 @@
       el.classList.toggle('hidden-control', !cfg.texts.includes(el.dataset.text));
     });
 
-    $('brandToggleText').textContent = layout === 'stamp' ? '브랜드명' : '브랜드 로고';
+    const currentTheme = effectiveTheme(getState());
+    $('brandToggleText').textContent = (layout === 'stamp' || currentTheme.textOnly) ? '브랜드명' : '브랜드 로고';
 
     document.querySelectorAll('[data-poster-control]').forEach(el => {
       el.classList.toggle('hidden-control', layout !== 'poster');
@@ -2165,7 +2221,8 @@ function captureExifValues(){
 
   function requestLocalLogo(theme){
     if(!theme || !theme.key) return null;
-    if(logoCache.has(theme.key)) return logoCache.get(theme.key);
+    const cacheKey = theme.dataUrl ? `${theme.key}:${theme.dataUrl}` : theme.key;
+    if(logoCache.has(cacheKey)) return logoCache.get(cacheKey);
 
     const img = new Image();
     const record = {
@@ -2175,7 +2232,7 @@ function captureExifValues(){
       embedded:false
     };
 
-    logoCache.set(theme.key, record);
+    logoCache.set(cacheKey, record);
 
     img.onload = () => {
       record.loaded = true;
@@ -2186,6 +2243,12 @@ function captureExifValues(){
       record.failed = true;
       renderPreview();
     };
+
+    if(theme.dataUrl){
+      record.embedded = true;
+      img.src = theme.dataUrl;
+      return record;
+    }
 
     const embeddedSource = EMBEDDED_LOGOS[theme.key];
 
@@ -2243,6 +2306,14 @@ function captureExifValues(){
     y += logoAdj.dy;
     maxW *= logoAdj.scale;
     maxH *= logoAdj.scale;
+
+    if(theme.textOnly){
+      const brandText = String(theme.brand || state.make || 'CAMERA').trim();
+      const fontSize = Math.min(maxH * .78, 28);
+      const color = logoAdj.color;
+      drawText(ctx, brandText, x, y + maxH * .78, fontSize, color, '700', family, align);
+      return {w:maxW, h:maxH, visible:true};
+    }
 
     const rec = requestLocalLogo(theme);
     if(rec && rec.loaded && rec.img.naturalWidth){
@@ -3405,6 +3476,8 @@ function captureExifValues(){
 
     const values = {
       theme:'auto',
+      customLogoDataUrl:'',
+      customLogoFileName:'',
       titleFont:"'Pretendard', sans-serif",
       bodyFont:"'Source Han Sans KR', 'Noto Sans KR', sans-serif",
       metaFont:"'Pretendard', sans-serif",
@@ -3520,6 +3593,7 @@ function captureExifValues(){
     }
 
     const theme = effectiveTheme(state);
+    if(theme.textOnly) return true;
     const record = requestLocalLogo(theme);
 
     /*
@@ -4176,6 +4250,72 @@ async function loadSample(){
       syncCurrentPhotoValues();
       saveState();
       renderPreview();
+    });
+  }
+
+  const customBrandLogoBtn = $('customBrandLogoBtn');
+  const customBrandLogoFile = $('customBrandLogoFile');
+  const clearCustomBrandLogoBtn = $('clearCustomBrandLogoBtn');
+
+  if(customBrandLogoBtn && customBrandLogoFile){
+    customBrandLogoBtn.addEventListener('click', () => {
+      if(activeLayoutConfig().imageLogo !== true){
+        alert('현재 템플릿은 이미지 브랜드 로고를 사용하지 않습니다.');
+        return;
+      }
+      customBrandLogoFile.click();
+    });
+
+    customBrandLogoFile.addEventListener('change', event => {
+      const file = event.target.files && event.target.files[0];
+      event.target.value = '';
+      if(!file) return;
+
+      const validTypes = new Set(['image/png','image/svg+xml','image/webp','image/jpeg']);
+      const validExtension = /\.(png|svg|webp|jpe?g)$/i.test(file.name || '');
+      if((file.type && !validTypes.has(file.type)) || (!file.type && !validExtension)){
+        alert('PNG, SVG, WebP 또는 JPEG 로고 파일을 선택하세요.');
+        return;
+      }
+      if(file.size > 2 * 1024 * 1024){
+        alert('로고 파일은 2MB 이하로 준비하세요. 투명 PNG 또는 SVG를 권장합니다.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onerror = () => alert('로고 파일을 읽지 못했습니다.');
+      reader.onload = () => {
+        const dataUrl = String(reader.result || '');
+        const testImage = new Image();
+        testImage.onerror = () => alert('선택한 파일을 이미지 로고로 사용할 수 없습니다.');
+        testImage.onload = () => {
+          $('customLogoDataUrl').value = dataUrl;
+          $('customLogoFileName').value = file.name || 'custom-logo';
+          $('theme').value = 'custom_logo';
+          logoCache.clear();
+          updateCustomBrandLogoUI();
+          syncDesignStateAfterChange({refreshList:true});
+          saveState();
+          renderPreview();
+          $('statusText').textContent = '사용자 제조사 로고 적용 완료';
+        };
+        testImage.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if(clearCustomBrandLogoBtn){
+    clearCustomBrandLogoBtn.addEventListener('click', () => {
+      $('customLogoDataUrl').value = '';
+      $('customLogoFileName').value = '';
+      if($('theme').value === 'custom_logo') $('theme').value = 'exif_text';
+      logoCache.clear();
+      updateCustomBrandLogoUI();
+      syncDesignStateAfterChange({refreshList:true});
+      saveState();
+      renderPreview();
+      $('statusText').textContent = '사용자 제조사 로고 제거 완료';
     });
   }
 
