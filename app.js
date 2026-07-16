@@ -2264,65 +2264,64 @@ function captureExifValues(){
     return {w:0, h:0, visible:false};
   }
 
-  // Segmented digital font for film date overlay
-  const SEG_POINTS = {
-    T:[0.18,0.12, 0.82,0.12],
-    M:[0.18,0.50, 0.82,0.50],
-    B:[0.18,0.88, 0.82,0.88],
-    UL:[0.12,0.18, 0.12,0.46],
-    UR:[0.88,0.18, 0.88,0.46],
-    LL:[0.12,0.54, 0.12,0.82],
-    LR:[0.88,0.54, 0.88,0.82],
-    CV:[0.50,0.14, 0.50,0.86],
-    D1:[0.18,0.14, 0.50,0.50],
-    D2:[0.82,0.14, 0.50,0.50],
-    D3:[0.16,0.20, 0.50,0.84],
-    D4:[0.84,0.20, 0.50,0.84],
-    SL:[0.18,0.84, 0.82,0.16]
-  };
-  const SEG_MAP = {
-    '0':['T','UL','UR','LL','LR','B'],
-    '1':['UR','LR'],
-    '2':['T','UR','M','LL','B'],
-    '3':['T','UR','M','LR','B'],
-    '4':['UL','UR','M','LR'],
-    '5':['T','UL','M','LR','B'],
-    '6':['T','UL','M','LL','LR','B'],
-    '7':['T','UR','LR'],
-    '8':['T','UL','UR','M','LL','LR','B'],
-    '9':['T','UL','UR','M','LR','B'],
-    'A':['T','UL','UR','M','LL','LR'],
-    'B':['UL','LL','M','B','UR','LR'],
-    'C':['T','UL','LL','B'],
-    'D':['T','B','UL','LL','UR','LR'],
-    'E':['T','UL','M','LL','B'],
-    'F':['T','UL','M','LL'],
-    'G':['T','UL','LL','B','LR','M'],
-    'H':['UL','UR','M','LL','LR'],
-    'I':['T','CV','B'],
-    'J':['UR','LR','B','LL'],
-    'K':['UL','LL','D2','D3'],
-    'L':['UL','LL','B'],
-    'M':['UL','UR','LL','LR','D1','D2'],
-    'N':['UL','UR','LL','LR','D1','D4'],
-    'O':['T','UL','UR','LL','LR','B'],
-    'P':['T','UL','UR','M','LL'],
-    'Q':['T','UL','UR','LL','LR','B','D4'],
-    'R':['T','UL','UR','M','LL','D4'],
-    'S':['T','UL','M','LR','B'],
-    'T':['T','CV'],
-    'U':['UL','UR','LL','LR','B'],
-    'V':['UL','UR','D3','D4'],
-    'W':['UL','UR','LL','LR','D3','D4'],
-    'X':['D1','D2','D3','D4'],
-    'Y':['D1','D2','CV'],
-    'Z':['T','D2','D3','B'],
-    '-':['M'],
-    ' ':[]
+  // 16-segment vector display for Film Date Overlay.
+  // Vector rendering is used instead of a font file so preview and JPEG export
+  // remain identical across iOS, Windows, macOS and browsers.
+  const SEG16_POINTS = {
+    A1:[0.16,0.10, 0.47,0.10], A2:[0.53,0.10, 0.84,0.10],
+    B:[0.88,0.15, 0.88,0.46], C:[0.88,0.54, 0.88,0.85],
+    D1:[0.53,0.90, 0.84,0.90], D2:[0.16,0.90, 0.47,0.90],
+    E:[0.12,0.54, 0.12,0.85], F:[0.12,0.15, 0.12,0.46],
+    G1:[0.16,0.50, 0.47,0.50], G2:[0.53,0.50, 0.84,0.50],
+    H:[0.18,0.15, 0.46,0.46], I:[0.50,0.14, 0.50,0.46],
+    J:[0.82,0.15, 0.54,0.46], K:[0.18,0.85, 0.46,0.54],
+    L:[0.50,0.54, 0.50,0.86], M:[0.82,0.85, 0.54,0.54]
   };
 
-  function digitalCharWidth(size){ return size * 0.60; }
-  function digitalGap(size){ return size * 0.14; }
+  const SEG16_MAP = {
+    '0':['A1','A2','B','C','D1','D2','E','F'],
+    '1':['B','C'],
+    '2':['A1','A2','B','G1','G2','E','D2','D1'],
+    '3':['A1','A2','B','G1','G2','C','D1','D2'],
+    '4':['F','G1','G2','B','C'],
+    '5':['A1','A2','F','G1','G2','C','D1','D2'],
+    '6':['A1','A2','F','G1','G2','E','C','D1','D2'],
+    '7':['A1','A2','B','C'],
+    '8':['A1','A2','B','C','D1','D2','E','F','G1','G2'],
+    '9':['A1','A2','B','C','D1','D2','F','G1','G2'],
+    'A':['A1','A2','B','C','E','F','G1','G2'],
+    'B':['A1','A2','B','C','D1','D2','G1','G2','I','L'],
+    'C':['A1','A2','D1','D2','E','F'],
+    'D':['A1','A2','B','C','D1','D2','I','L'],
+    'E':['A1','A2','D1','D2','E','F','G1','G2'],
+    'F':['A1','A2','E','F','G1','G2'],
+    'G':['A1','A2','C','D1','D2','E','F','G2'],
+    'H':['B','C','E','F','G1','G2'],
+    'I':['A1','A2','D1','D2','I','L'],
+    'J':['B','C','D1','D2','E'],
+    'K':['E','F','G1','J','M'],
+    'L':['D1','D2','E','F'],
+    'M':['B','C','E','F','H','J'],
+    'N':['B','C','E','F','H','M'],
+    'O':['A1','A2','B','C','D1','D2','E','F'],
+    'P':['A1','A2','B','E','F','G1','G2'],
+    'Q':['A1','A2','B','C','D1','D2','E','F','M'],
+    'R':['A1','A2','B','E','F','G1','G2','M'],
+    'S':['A1','A2','F','G1','G2','C','D1','D2'],
+    'T':['A1','A2','I','L'],
+    'U':['B','C','D1','D2','E','F'],
+    'V':['E','F','K','M'],
+    'W':['B','C','E','F','K','M'],
+    'X':['H','J','K','M'],
+    'Y':['H','J','L'],
+    'Z':['A1','A2','J','K','D1','D2'],
+    '-':['G1','G2'],
+    '_':['D1','D2'],
+    ' ' :[]
+  };
+
+  function digitalCharWidth(size){ return size * 0.64; }
+  function digitalGap(size){ return size * 0.12; }
 
   function measureDigitalText(text, size){
     const chars = String(text || '').toUpperCase();
@@ -2330,6 +2329,7 @@ function captureExifValues(){
     for(let i=0;i<chars.length;i++){
       const ch = chars[i];
       if(ch === '.') total += size * 0.18;
+      else if(ch === ':') total += size * 0.22;
       else if(ch === '/') total += size * 0.34;
       else total += digitalCharWidth(size);
       if(i < chars.length - 1) total += digitalGap(size);
@@ -2337,9 +2337,19 @@ function captureExifValues(){
     return total;
   }
 
+  function drawSegment16(ctx, x1, y1, x2, y2, thickness){
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.lineWidth = thickness;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+  }
+
   function drawDigitalText(ctx, text, x, y, size, color, align='left'){
     const chars = String(text || '').toUpperCase();
-    const stroke = Math.max(1.5, size * 0.085);
+    const thickness = Math.max(1.35, size * 0.072);
     const gap = digitalGap(size);
     const totalWidth = measureDigitalText(chars, size);
     let cursor = x;
@@ -2349,38 +2359,31 @@ function captureExifValues(){
     ctx.save();
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
-    ctx.lineWidth = stroke;
-    ctx.lineCap = 'square';
-    ctx.lineJoin = 'miter';
-    ctx.shadowColor = 'rgba(0,0,0,.35)';
-    ctx.shadowBlur = 1;
-    ctx.shadowOffsetY = 1;
+    ctx.globalAlpha = 0.98;
+    ctx.shadowColor = 'rgba(255,130,20,.20)';
+    ctx.shadowBlur = Math.max(0.5, size * 0.025);
 
     [...chars].forEach(ch => {
-      const cw = (ch === '.') ? size * 0.18 : (ch === '/' ? size * 0.34 : digitalCharWidth(size));
+      const cw = ch === '.' ? size * 0.18 : ch === ':' ? size * 0.22 : ch === '/' ? size * 0.34 : digitalCharWidth(size);
       if(ch === '.'){
         ctx.beginPath();
-        ctx.arc(cursor + cw * 0.5, y + size * 0.82, stroke * 0.42, 0, Math.PI * 2);
+        ctx.arc(cursor + cw * 0.5, y + size * 0.86, thickness * 0.62, 0, Math.PI * 2);
         ctx.fill();
-        cursor += cw + gap;
-        return;
+      } else if(ch === ':'){
+        [0.35,0.69].forEach(py => {
+          ctx.beginPath();
+          ctx.arc(cursor + cw * 0.5, y + size * py, thickness * 0.55, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      } else if(ch === '/'){
+        drawSegment16(ctx, cursor + cw * 0.12, y + size * 0.88, cursor + cw * 0.88, y + size * 0.12, thickness);
+      } else {
+        const segs = SEG16_MAP[ch] || [];
+        segs.forEach(seg => {
+          const [x1,y1,x2,y2] = SEG16_POINTS[seg];
+          drawSegment16(ctx, cursor + cw*x1, y + size*y1, cursor + cw*x2, y + size*y2, thickness);
+        });
       }
-      if(ch === '/'){
-        ctx.beginPath();
-        ctx.moveTo(cursor + cw * 0.12, y + size * 0.86);
-        ctx.lineTo(cursor + cw * 0.88, y + size * 0.14);
-        ctx.stroke();
-        cursor += cw + gap;
-        return;
-      }
-      const segs = SEG_MAP[ch] || [];
-      segs.forEach(seg => {
-        const [x1,y1,x2,y2] = SEG_POINTS[seg];
-        ctx.beginPath();
-        ctx.moveTo(cursor + cw * x1, y + size * y1);
-        ctx.lineTo(cursor + cw * x2, y + size * y2);
-        ctx.stroke();
-      });
       cursor += cw + gap;
     });
     ctx.restore();

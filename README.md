@@ -146,3 +146,6 @@ This contact is provided for copyright and distribution-related inquiries. Indiv
 - HEIC/HEIF 사진을 불러오면 브라우저 안에서 JPEG 미리보기로 변환하고, 원본 HEIC의 EXIF를 읽습니다.
 - 지원되는 iPhone/iPad에서는 `원본 · 사진 앱으로` 또는 `웹용 · 사진 앱으로` 버튼이 나타납니다.
 - 버튼을 누른 뒤 iOS 공유 시트에서 `이미지 저장`을 선택하면 사진 앱에 저장됩니다. 웹 브라우저 보안상 앱이 사용자 확인 없이 사진 보관함에 직접 저장할 수는 없습니다.
+
+## Film Date Overlay segment display
+Film Date Overlay uses an embedded 16-segment vector display renderer. It does not depend on an external font file, so the preview and exported JPEG remain consistent across iPhone/iPad, Windows, macOS, Chrome, Edge and Safari.
