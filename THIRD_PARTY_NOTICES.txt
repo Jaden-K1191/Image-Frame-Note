@@ -42,3 +42,12 @@ FUJIFILM, Leica, Canon, Nikon, Sony, Panasonic LUMIX, OM SYSTEM, Ricoh, and any 
 Photos, logos, fonts, text, and other content imported by users remain subject to the rights and licenses applicable to those materials. Users are responsible for obtaining any required permission.
 
 Where a third-party license conflicts with the FrameNote Software License, the third-party license governs that third-party material.
+
+
+5. ExifReader
+FrameNote includes ExifReader for reading metadata from JPEG, HEIC/HEIF, WebP and other supported image containers. ExifReader is distributed under the Mozilla Public License 2.0.
+Project: https://github.com/mattiasw/ExifReader
+
+6. heic2any
+FrameNote includes heic2any for client-side HEIC/HEIF preview conversion. heic2any is distributed under the MIT License.
+Project: https://github.com/alexcorvi/heic2any

@@ -1434,17 +1434,69 @@ async function measureImageSource(url){
   });
 }
 
-async function createPhotoItemFromFile(file, baseTextValues, baseDesignState){
-  const url = URL.createObjectURL(file);
-  const dims = await measureImageSource(url);
-  let parsedExif = {};
-  if(file.type === 'image/jpeg'){
-    try{
-      parsedExif = parseExif(await file.arrayBuffer()) || {};
-    }catch(error){
-      console.warn('EXIF parse failed:', error);
-    }
+function isHeicFile(file){
+  return /\.(heic|heif)$/i.test(file?.name || '') || /image\/(heic|heif)/i.test(file?.type || '');
+}
+
+function exifReaderValue(tags, ...names){
+  for(const name of names){
+    const tag = tags && tags[name];
+    if(!tag) continue;
+    const value = tag.value ?? tag.description;
+    if(Array.isArray(value)) return value.length === 1 ? value[0] : value;
+    if(value !== undefined && value !== null && value !== '') return value;
   }
+  return '';
+}
+
+function normalizeExifReaderTags(tags){
+  const rational = value => {
+    if(typeof value === 'number') return value;
+    if(Array.isArray(value) && value.length >= 2 && Number(value[1])) return Number(value[0]) / Number(value[1]);
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  };
+  return {
+    make: exifReaderValue(tags, 'Make'),
+    model: exifReaderValue(tags, 'Model'),
+    lens: exifReaderValue(tags, 'LensModel', 'Lens', 'LensInfo'),
+    focal: rational(exifReaderValue(tags, 'FocalLength')),
+    aperture: rational(exifReaderValue(tags, 'FNumber', 'ApertureValue')),
+    exposure: rational(exifReaderValue(tags, 'ExposureTime')),
+    iso: exifReaderValue(tags, 'ISOSpeedRatings', 'PhotographicSensitivity', 'ISO'),
+    datetime: exifReaderValue(tags, 'DateTimeOriginal', 'DateTimeDigitized', 'DateTime')
+  };
+}
+
+async function readExifFromFile(file){
+  try{
+    if(typeof ExifReader !== 'undefined'){
+      const tags = await ExifReader.load(file, {expanded:false});
+      return normalizeExifReaderTags(tags || {});
+    }
+  }catch(error){
+    console.warn('ExifReader parse failed:', error);
+  }
+  if(file.type === 'image/jpeg' || /\.jpe?g$/i.test(file.name || '')){
+    try{return parseExif(await file.arrayBuffer()) || {};}catch(error){console.warn('EXIF parse failed:', error);}
+  }
+  return {};
+}
+
+async function createDisplaySourceForFile(file){
+  if(!isHeicFile(file)) return {url:URL.createObjectURL(file), convertedBlob:null};
+  if(typeof heic2any === 'undefined') throw new Error('HEIC 변환 모듈을 불러오지 못했습니다. 인터넷 연결 또는 파일 구성을 확인하세요.');
+  const converted = await heic2any({blob:file, toType:'image/jpeg', quality:0.94});
+  const blob = Array.isArray(converted) ? converted[0] : converted;
+  if(!(blob instanceof Blob)) throw new Error('HEIC 이미지를 JPEG로 변환하지 못했습니다.');
+  return {url:URL.createObjectURL(blob), convertedBlob:blob};
+}
+
+async function createPhotoItemFromFile(file, baseTextValues, baseDesignState){
+  const source = await createDisplaySourceForFile(file);
+  const url = source.url;
+  const dims = await measureImageSource(url);
+  const parsedExif = await readExifFromFile(file);
 
   const exifValues = {};
   EXIF_FIELD_IDS.forEach(id => exifValues[id] = '');
@@ -1466,6 +1518,7 @@ async function createPhotoItemFromFile(file, baseTextValues, baseDesignState){
     name: file.name,
     url,
     file,
+    convertedBlob: source.convertedBlob,
     width: dims.width,
     height: dims.height,
     hasExif: !!Object.values(parsedExif || {}).filter(Boolean).length,
@@ -1496,19 +1549,31 @@ async function createPhotoItemFromUrl(name, url, baseTextValues, baseDesignState
 }
 
 async function loadFiles(fileList){
-  const files = [...fileList].filter(file => /^image\//.test(file.type));
+  const files = [...fileList].filter(file => /^image\//.test(file.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name || ''));
   if(!files.length) return;
   $('statusText').textContent = `사진 ${files.length}장 읽는 중…`;
   const baseTextValues = captureTextValues();
   const baseDesignState = captureDesignState();
   const items = [];
+  const failed = [];
   for(const file of files){
-    items.push(await createPhotoItemFromFile(file, baseTextValues, baseDesignState));
+    try{
+      items.push(await createPhotoItemFromFile(file, baseTextValues, baseDesignState));
+    }catch(error){
+      console.error(`Image load failed: ${file.name}`, error);
+      failed.push(file.name);
+    }
+  }
+  if(!items.length){
+    $('statusText').textContent = '사진 불러오기 실패';
+    alert(`선택한 사진을 불러오지 못했습니다.\n\n${failed.join('\n')}`);
+    return;
   }
   photoItems = items;
   renderBatchList();
   await selectPhotoById(photoItems[0].id, {preserveCurrent:false});
-  $('statusText').textContent = `사진 ${photoItems.length}장 준비됨`;
+  $('statusText').textContent = failed.length ? `사진 ${photoItems.length}장 준비됨 · ${failed.length}장 실패` : `사진 ${photoItems.length}장 준비됨`;
+  if(failed.length) alert(`다음 파일은 불러오지 못했습니다.\n\n${failed.join('\n')}`);
 }
 
 function captureExifValues(){
@@ -3769,6 +3834,61 @@ ${error && error.message ? error.message : String(error)}`);
     }
   }
 
+  function nativeFileShareSupported(){
+    if(!navigator.share || !navigator.canShare) return false;
+    try{
+      const probe = new File([new Blob(['x'], {type:'image/jpeg'})], 'framenote.jpg', {type:'image/jpeg'});
+      return navigator.canShare({files:[probe]});
+    }catch(error){
+      return false;
+    }
+  }
+
+  function updateNativeShareUI(){
+    const supported = nativeFileShareSupported();
+    const likelyIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    ['shareOriginalBtn','shareWebBtn'].forEach(id => { const el=$(id); if(el) el.hidden = !(supported && likelyIOS); });
+    const guide = $('iosShareGuide');
+    if(guide) guide.hidden = !(supported && likelyIOS);
+  }
+
+  async function shareJPEGToPhotos(mode){
+    if(!imageLoaded){ alert('먼저 사진을 불러와 주세요.'); return; }
+    if(!nativeFileShareSupported()){
+      alert('이 브라우저에서는 사진 공유 기능을 사용할 수 없습니다. JPEG 다운로드를 사용하세요.');
+      return;
+    }
+    if(!selectedUserFontsAreReady()){
+      ensureSelectedUserFonts({render:true, silent:false});
+      alert('선택한 추가 폰트가 적용된 뒤 다시 시도하세요.');
+      return;
+    }
+    const state = getState();
+    if(!selectedLogoReady(state)){
+      alert('브랜드 로고 또는 이미지 워터마크가 미리보기에 나타난 뒤 다시 시도하세요.');
+      return;
+    }
+    $('statusText').textContent = '사진 앱 전송용 JPEG 생성 중…';
+    try{
+      const rendered = generateJPEGBlobForState(state, mode);
+      const base = currentFileName.replace(/\.[^.]+$/, '');
+      const suffix = rendered.sizeWasReduced && mode === 'original' ? 'original_browser_safe' : mode;
+      const fileName = `${base}_${state.layout || layout}_${suffix}.jpg`;
+      const shareFile = new File([rendered.blob], fileName, {type:'image/jpeg', lastModified:Date.now()});
+      await navigator.share({files:[shareFile], title:'FrameNote JPEG'});
+      $('statusText').textContent = '공유 시트 열기 완료';
+      $('canvasInfo').textContent = `${rendered.width} × ${rendered.height} export`;
+    }catch(error){
+      if(error?.name === 'AbortError'){
+        $('statusText').textContent = '사진 앱 전송 취소';
+        return;
+      }
+      console.error(error);
+      $('statusText').textContent = '사진 앱 전송 실패';
+      alert(`공유 시트를 열지 못했습니다.\n\n${error?.message || String(error)}`);
+    }
+  }
+
   async function exportJPEG(mode){
     if(!imageLoaded){
       alert('먼저 사진을 불러와 주세요.');
@@ -4119,6 +4239,11 @@ if(copyrightDialog){
   $('clearExifBtn').addEventListener('click', clearExifValues);
   $('exportOriginalBtn').addEventListener('click', () => exportJPEG('original'));
   $('exportWebBtn').addEventListener('click', () => exportJPEG('web'));
+  const shareOriginalBtn = $('shareOriginalBtn');
+  const shareWebBtn = $('shareWebBtn');
+  if(shareOriginalBtn) shareOriginalBtn.addEventListener('click', () => shareJPEGToPhotos('original'));
+  if(shareWebBtn) shareWebBtn.addEventListener('click', () => shareJPEGToPhotos('web'));
+  updateNativeShareUI();
   $('exportAllOriginalBtnPanel').addEventListener('click', () => exportAllJPEG('original'));
   $('exportAllWebBtnPanel').addEventListener('click', () => exportAllJPEG('web'));
   const batchApplyToggle = $('batchApplyToggle');

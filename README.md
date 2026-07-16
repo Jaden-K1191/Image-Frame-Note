@@ -140,3 +140,9 @@ This contact is provided for copyright and distribution-related inquiries. Indiv
 - 워터마크 이미지 색상 변경 및 크기·X·Y 위치 조정
 - 저작자 표시의 색상·크기·X·Y 위치 조정
 - Thought / Note의 수동 줄바꿈 시 불필요한 빈 줄이 생기거나 두 번째 줄이 잘리는 문제 수정
+
+
+## iPhone / iPad
+- HEIC/HEIF 사진을 불러오면 브라우저 안에서 JPEG 미리보기로 변환하고, 원본 HEIC의 EXIF를 읽습니다.
+- 지원되는 iPhone/iPad에서는 `원본 · 사진 앱으로` 또는 `웹용 · 사진 앱으로` 버튼이 나타납니다.
+- 버튼을 누른 뒤 iOS 공유 시트에서 `이미지 저장`을 선택하면 사진 앱에 저장됩니다. 웹 브라우저 보안상 앱이 사용자 확인 없이 사진 보관함에 직접 저장할 수는 없습니다.
