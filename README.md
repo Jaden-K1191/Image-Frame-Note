@@ -68,7 +68,11 @@ Chrome 또는 Edge에서는 `저장 폴더 선택` 버튼으로 출력 위치를
 - Clean Frame
 - Minimal Bottom Bar
 - Exhibition Caption
-- Polaroid Note
+- Brush Photo Edge
+
+### Brush Photo Edge
+
+`Brush Photo Edge`는 사진의 네 면을 붓으로 칠한 듯 불규칙하게 표현하는 프레임입니다. 스타일 탭의 전용 드롭다운에서 A–F 6가지 엣지를 선택할 수 있습니다. 프레임 색상은 사진 바깥쪽 캔버스 색으로 사용되며, 저작자와 워터마크 표시를 지원합니다.
 
 ## 브랜드 로고
 
@@ -156,3 +160,83 @@ This contact is provided for copyright and distribution-related inquiries. Indiv
 ## Film Date Overlay segment display
 Film Date Overlay uses an embedded 16-segment vector display renderer. It does not depend on an external font file, so the preview and exported JPEG remain consistent across iPhone/iPad, Windows, macOS, Chrome, Edge and Safari.
 
+
+
+## Brush Photo Edge — 샘플 누끼 마스크 방식
+
+- 대화에서 확정한 6종 샘플 이미지의 외곽 실루엣을 직접 분리해 A~F 알파 마스크로 적용했습니다.
+- 브라우저 계산으로 임의 프레임을 만드는 방식이 아니라, 각 샘플의 실제 네 면 형태를 고정 마스크로 사용합니다.
+- 흰색 하늘·건물처럼 사진 내부의 밝은 영역은 투명해지지 않도록 외곽 연결 영역 기준으로 분리했습니다.
+- 마스크는 `app.js`에 내장되어 로컬 실행과 iPhone 환경에서 별도 경로 로딩 없이 동작합니다.
+- 원본 PNG 마스크와 확인용 미리보기는 `assets/brush_masks/`에도 포함했습니다.
+
+
+## Brush Photo Edge 자산형 렌더링 추가
+
+이번 버전부터 Brush Photo Edge 템플릿은 **마스크(mask) + 텍스처 오버레이(overlay)** PNG 자산을 읽을 수 있습니다.
+
+- 경로: `assets/brush_photo_edge/`
+- 파일명 예시: `A_landscape_mask.png`, `A_landscape_overlay.png`
+- 비율 그룹: `landscape`, `portrait`, `square`
+- 자산이 없을 경우 기존 내장 Brush Photo Edge 로직으로 자동 fallback 됩니다.
+
+자세한 제작 규칙은 `assets/brush_photo_edge/README.md`를 확인하세요.
+
+
+## 포함된 A 스타일 기본 자산
+
+이 패키지에는 `Brush Photo Edge A`용 자산이 기본 포함되어 있습니다.
+
+포함 파일:
+- `A_landscape_mask.png`
+- `A_landscape_overlay.png`
+- `A_portrait_mask.png`
+- `A_portrait_overlay.png`
+- `A_square_mask.png`
+- `A_square_overlay.png`
+
+`assets/brush_photo_edge/` 폴더의 preview 파일로 대략적인 적용 느낌을 확인할 수 있습니다.
+
+B ~ F 스타일은 현재 기존 fallback 방식으로 동작합니다.
+
+
+## 포함된 Brush Photo Edge 자산
+
+현재 패키지에는 A~F 전체 스타일용 기본 자산이 포함되어 있습니다.
+
+- A: landscape / portrait / square
+- B: landscape / portrait / square
+- C: landscape / portrait / square
+- D: landscape / portrait / square
+- E: landscape / portrait / square
+- F: landscape / portrait / square
+
+각 스타일은 `mask + overlay` 구조로 구성되어 있으며, `assets/brush_photo_edge/` 폴더에서 직접 교체하거나 세부 조정할 수 있습니다.
+
+
+### Brush Photo Edge patch
+- A keeps the subtle asset-based look you liked.
+- B~F were rebuilt to be visually distinct while staying restrained, instead of all collapsing into the same look.
+
+
+## Photo Data layout and lens EXIF update
+- Portrait photos now use the same layout as landscape photos: photo on the left and data panel on the right.
+- Lens display priority: `LensModel`; when unavailable, fall back to `Lens`.
+- `LensInfo` and `LensSpecification` are not merged into the displayed lens name.
+- ISO remains formatted as `ISO 250`, with one space between ISO and the numeric value.
+
+
+## New in this update
+- Added **Multi Frame** template.
+- Supports `Hero + Two · Landscape`, `Hero + Two · Portrait`, `Triple Strip`, and `Diptych`.
+- Current selected image is used as the first/main tile, and the remaining images are placed in list order. Photos are never duplicated to fill missing slots; missing slots remain empty placeholders.
+- Supports square (1:1), 4:5, and 3:2 output ratios.
+
+
+## Multi Frame update
+- Multi Frame now preserves the original photo aspect ratio.
+- Added optimized layouts: Hero + Two · Landscape, Triple Strip · Panorama, Double Stack · Landscape, Diptych · Portrait.
+- Multi Frame is intentionally simple: no EXIF, title, location, logo, creator, or watermark overlays.
+- Overall frame ratio is derived from the inserted photos and selected layout.
+
+- Added **Hero (Portrait) + Two Mini (Landscape)** with aspect-ratio-preserving geometry.

@@ -115,7 +115,9 @@
           <button class="template" data-layout="frameonly"><span>Clean Frame</span></button>
           <button class="template" data-layout="minimal"><span>Minimal Bottom Bar</span></button>
           <button class="template" data-layout="caption"><span>Exhibition Caption</span></button>
-          <button class="template" data-layout="polaroid"><span>Polaroid Note</span></button>
+          <button class="template" data-layout="brush"><span>Brush Photo Edge</span></button>
+          <button class="template" data-layout="photodata"><span>Photo Data</span></button>
+          <button class="template" data-layout="multiframe"><span>Multi Frame</span></button>
         </div>
 
         <div class="section-title">표시 요소</div>
@@ -261,7 +263,7 @@
             <label>프레임 여백
               <input id="margin" type="range" min="24" max="96" value="52" />
             </label>
-            <label>사진 모서리
+            <label data-radius-control>사진 모서리
               <input id="radius" type="range" min="0" max="32" value="0" />
             </label>
           </div>
@@ -380,6 +382,42 @@
             <label>워터마크 색상
               <input id="watermarkColor" type="color" value="#ffffff" />
             </label>
+          </div>
+        </details>
+
+        <details class="style-section" data-brush-control>
+          <summary>Brush Photo Edge 전용</summary>
+          <div class="style-section-body form-grid">
+            <label class="full">브러시 엣지 스타일
+              <select id="brushStyle">
+                <option value="A">A · Dry Brush</option>
+                <option value="B">B · Thick Paint</option>
+                <option value="C">C · Ink Edge</option>
+                <option value="D">D · Soft Mist</option>
+                <option value="E">E · Canvas Patch</option>
+                <option value="F">F · Pastel Brush</option>
+              </select>
+              <span class="field-help">사진의 네 면을 실제 붓질처럼 불규칙하게 마스킹합니다. 프레임 색상은 붓 가장자리 밖의 캔버스 색으로 사용됩니다.</span>
+            </label>
+          </div>
+        </details>
+
+        <details class="style-section" data-multiframe-control>
+          <summary>Multi Frame 전용</summary>
+          <div class="style-section-body form-grid">
+            <label class="full">레이아웃
+              <select id="multiFrameLayout">
+                <option value="hero_two_landscape">Hero + Two · Landscape</option>
+                <option value="hero_two_portrait">Hero (Portrait) + Two Mini (Landscape)</option>
+                <option value="triple_strip">Triple Strip · Panorama</option>
+                <option value="double_stack">Double Stack · Landscape</option>
+                <option value="diptych">Diptych · Portrait</option>
+              </select>
+            </label>
+            <label class="full">사진 간격
+              <input id="multiFrameGap" type="range" min="0" max="32" value="12" />
+            </label>
+            <div class="full hint-box">Multi Frame는 원본 사진 비율을 유지하는 심플 프레임입니다. EXIF, 제목, 위치, 로고, 워터마크는 표시하지 않고 저작자만 선택적으로 표시합니다. 필요한 장수만큼 사진을 직접 넣어 사용하는 것을 기준으로 합니다.</div>
           </div>
         </details>
 
